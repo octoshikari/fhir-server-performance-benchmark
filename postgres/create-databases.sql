@@ -1,0 +1,2 @@
+CREATE DATABASE aidbox;
+CREATE DATABASE hapi;

@@ -1,0 +1,121 @@
+services:
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      BOX_ADMIN_PASSWORD: secret
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_HOST: postgres
+      BOX_DB_PASSWORD: postgres
+      BOX_DB_USER: postgres
+      BOX_FHIR_COMPLIANT_MODE: true
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: true
+      BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
+      BOX_FHIR_SCHEMA_VALIDATION: true
+      BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
+      BOX_FHIR_SEARCH_COMPARISONS: true
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
+      BOX_LICENSE: <LICENSE>
+      BOX_ROOT_CLIENT_SECRET: secret
+      BOX_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_SECURITY_AUDIT_LOG_ENABLED: true
+      BOX_SECURITY_DEV_MODE: true
+      BOX_SETTINGS_MODE: read-write
+      BOX_WEB_BASE_URL: http://localhost:8080
+      BOX_WEB_PORT: 8080
+    healthcheck:
+      test: curl -f http://localhost:8080/health
+      interval: 30s
+      start_period: 30s
+    ports:
+      - 8080:8080
+
+  grafana:
+    image: grafana/grafana-oss
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    environment:
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_ANONYMOUS_ENABLED: true
+      GF_AUTH_BASIC_ENABLED: false
+    healthcheck:
+      test: curl http://localhost:3000/api/health
+      interval: 5s
+      start_period: 30s
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana:/etc/grafana/provisioning:ro
+
+  hapi:
+    image: hapiproject/hapi:latest-tomcat
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./hapi/application.yaml:/app/config/application.yaml:ro
+      - ./curl:/mnt:ro
+    healthcheck:
+      test: /mnt/curl-$$(uname -m) -f http://localhost:8080/fhir/metadata
+      interval: 30s
+      start_period: 30s
+
+  k6:
+    image: grafana/k6
+    command:
+      - -c
+      - /run.sh
+    depends_on:
+      aidbox:
+        condition: service_healthy
+      hapi:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    entrypoint: /bin/sh
+    environment:
+      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
+      K6_PROMETHEUS_RW_STALE_MARKERS: true
+      K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: true
+    volumes:
+      - ./run.sh:/run.sh:ro
+      - ./test:/test
+    working_dir: /test
+
+  postgres:
+    image: healthsamurai/aidboxdb:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 3s
+      start_period: 10s
+    volumes:
+      - pgdata:/var/lib/postgresql/data:delegated
+      - ./postgres:/docker-entrypoint-initdb.d
+
+  prometheus:
+    image: prom/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --enable-feature=native-histograms
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-remote-write-receiver
+    healthcheck:
+      test: wget -O - http://localhost:9090/-/ready
+      interval: 5s
+      start_period: 5s
+    volumes:
+      - ./postgres:/docker-entrypoint-initdb.d
+
+volumes:
+  pgdata:
