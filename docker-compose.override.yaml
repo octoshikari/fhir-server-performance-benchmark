@@ -1,0 +1,69 @@
+services:
+
+  aidbox:
+    healthcheck:
+      test: curl -f http://localhost:8080/health
+      start_period: 30s
+
+  grafana:
+    image: grafana/grafana-oss
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+
+  k6-build:
+    image: grafana/xk6
+    command:
+      - build
+      - --with
+      - github.com/oleiade/xk6-kv
+    volumes:
+      - k6bin:/xk6
+
+  k6-run:
+    image: bash
+    command:
+      - k6
+      - run
+      - -o
+      - experimental-prometheus-rw
+      - test/insert.js
+    depends_on:
+      aidbox:
+        condition: service_healthy
+      k6-build:
+        condition: service_completed_successfully
+    environment:
+      BASE_URL: http://aidbox:8080
+      AUTH_USER: root
+      AUTH_PASSWORD: <take-from-aidbox>
+      K6_WEB_DASHBOARD: true
+      K6_WEB_DASHBOARD_PORT: 5665
+      K6_PROMETHEUS_RW_SERVER_URL: "http://prometheus:9090/api/v1/write"
+      K6_PROMETHEUS_RW_STALE_MARKERS: true
+      K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: true
+      PATH: /bin:/usr/bin:/usr/local/bin:/xk6
+    ports:
+      - "5665:5665"
+    volumes:
+      - k6bin:/xk6
+      - .:/srv
+    working_dir: /srv
+
+  prometheus:
+    image: prom/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --enable-feature=native-histograms
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-remote-write-receiver
+    volumes:
+    - prometheus:/prometheus
+
+volumes:
+  grafana: {}
+  k6bin: {}
+  prometheus: {}
