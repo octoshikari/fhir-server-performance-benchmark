@@ -29,8 +29,6 @@ export default
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
     ],
-    "lastUpdated": "2024-10-17T12:36:14.656761Z",
-    "versionId": "1243",
     "extension": [
       {
         "url": "ex:createdAt",

@@ -25,8 +25,6 @@ export default
         "profile": [
             "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
         ],
-        "lastUpdated": "2022-12-01T10:51:39.203263Z",
-        "versionId": "0",
         "extension": [{"url": "ex:createdAt", "valueInstant": "2022-12-01T10:51:39.203263Z"}]
     },
     "name": [{"use": "official",

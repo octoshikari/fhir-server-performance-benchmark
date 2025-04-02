@@ -24,8 +24,6 @@ export default
   "effectiveDateTime": "2020-12-22T11:07:07+00:00",
   "issued": "2020-12-22T11:07:07.442+00:00",
   "meta": {
-    "lastUpdated": "2024-10-17T12:32:33.201205Z",
-    "versionId": "1048",
     "extension": [
       {
         "url": "ex:createdAt",

@@ -26,8 +26,6 @@ export default
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
     ],
-    "lastUpdated": "2024-10-17T12:34:49.426706Z",
-    "versionId": "1121",
     "extension": [
       {
         "url": "ex:createdAt",

@@ -23,8 +23,6 @@ export default
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
     ],
-    "lastUpdated": "2025-03-28T19:24:51.757291Z",
-    "versionId": "364767",
     "extension": [
       {
         "url": "ex:createdAt",
