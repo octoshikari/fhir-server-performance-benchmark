@@ -108,9 +108,9 @@
               "uid": "PBFA97CFB590B2093"
             },
             "editorMode": "code",
-            "expr": "sum(irate(k6_http_reqs_total[$__rate_interval])) by (testid)",
+            "expr": "sum(irate(k6_http_reqs_total[$__rate_interval])) by (fhirimpl)",
             "instant": false,
-            "legendFormat": "{{testid}}",
+            "legendFormat": "{{fhirimpl}}",
             "range": true,
             "refId": "A"
           }
@@ -205,9 +205,9 @@
               "uid": "PBFA97CFB590B2093"
             },
             "editorMode": "code",
-            "expr": "sum(irate(k6_http_reqs_total[$__rate_interval])) by (testid, group)",
+            "expr": "sum(irate(k6_http_reqs_total[$__rate_interval])) by (fhirimpl, group)",
             "instant": false,
-            "legendFormat": "{{testid}}{{group}}",
+            "legendFormat": "{{fhirimpl}}{{group}}",
             "range": true,
             "refId": "A"
           }
@@ -281,10 +281,10 @@
             },
             "editorMode": "code",
             "exemplar": false,
-            "expr": "sum(irate(k6_http_reqs_total[$__rate_interval])) by (testid, scenario)",
+            "expr": "sum(irate(k6_http_reqs_total[$__rate_interval])) by (fhirimpl, scenario)",
             "format": "time_series",
             "instant": false,
-            "legendFormat": "{{testid}} / {{scenario}}",
+            "legendFormat": "{{fhirimpl}} / {{scenario}}",
             "range": true,
             "refId": "A"
           }
@@ -301,8 +301,8 @@
       "list": []
     },
     "time": {
-      "from": "2025-04-01T20:26:31.242Z",
-      "to": "2025-04-01T20:29:31.151Z"
+      "from": "now-5m",
+      "to": "now"
     },
     "timepicker": {},
     "timezone": "browser",
