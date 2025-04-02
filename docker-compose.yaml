@@ -1,7 +1,6 @@
 services:
   aidbox:
     image: healthsamurai/aidboxone:edge
-    pull_policy: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -21,6 +20,7 @@ services:
       BOX_FHIR_SEARCH_COMPARISONS: true
       BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
       BOX_LICENSE: <LICENSE>
+      BOX_METRICS_PORT: 8379
       BOX_ROOT_CLIENT_SECRET: secret
       BOX_SEARCH_INCLUDE_CONFORMANT: true
       BOX_SECURITY_AUDIT_LOG_ENABLED: true
@@ -54,7 +54,7 @@ services:
       - ./grafana:/etc/grafana/provisioning:ro
 
   hapi:
-    image: hapiproject/hapi:latest-tomcat
+    image: hapiproject/hapi:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,9 +63,17 @@ services:
     volumes:
       - ./hapi/application.yaml:/app/config/application.yaml:ro
       - ./curl:/mnt:ro
+
+  hapi-checker:
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      hapi:
+        condition: service_started
+    entrypoint: /bin/sh
     healthcheck:
-      test: /mnt/curl-$$(uname -m) -f http://localhost:8080/fhir/metadata
-      interval: 30s
+      test: curl -f http://hapi:8080/actuator/health/readiness
+      interval: 10s
       start_period: 30s
 
   k6:
@@ -76,7 +84,7 @@ services:
     depends_on:
       aidbox:
         condition: service_healthy
-      hapi:
+      hapi-checker:
         condition: service_healthy
       prometheus:
         condition: service_healthy
@@ -85,6 +93,8 @@ services:
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
       K6_PROMETHEUS_RW_STALE_MARKERS: true
       K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: true
+    profiles:
+      - donotstart
     volumes:
       - ./run.sh:/run.sh:ro
       - ./test:/test
@@ -103,6 +113,13 @@ services:
       - pgdata:/var/lib/postgresql/data:delegated
       - ./postgres:/docker-entrypoint-initdb.d
 
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    environment:
+      DATA_SOURCE_URI: postgres:5432/postgres?sslmode=disable
+      DATA_SOURCE_USER: postgres
+      DATA_SOURCE_PASS: postgres
+
   prometheus:
     image: prom/prometheus
     command:
@@ -115,7 +132,7 @@ services:
       interval: 5s
       start_period: 5s
     volumes:
-      - ./postgres:/docker-entrypoint-initdb.d
+      - ./prometheus/config.yaml:/etc/prometheus/prometheus.yml
 
 volumes:
   pgdata:

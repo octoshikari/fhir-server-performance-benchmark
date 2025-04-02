@@ -1,3 +1,33 @@
+hapi:
+  fhir:
+    graphql_enabled: true
+    bulk_export_enabled: true
+    enable_index_missing_fields: true
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: 'info,health,prometheus,metrics'
+  endpoint:
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+    health:
+      enabled: true
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include:
+            - readinessState
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 spring:
   datasource:
     url: 'jdbc:postgresql://postgres/hapi'
@@ -8,8 +38,3 @@ spring:
     properties:
       hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
       hibernate.search.enabled: false
-hapi:
-  fhir:
-    graphql_enabled: true
-    bulk_export_enabled: true
-    enable_index_missing_fields: true
