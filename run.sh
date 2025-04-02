@@ -2,14 +2,19 @@
 
 set -e
 
+IDTAG=fhirimpl
+
 function run() {
   k6 run -o experimental-prometheus-rw "$@"
 }
 
-# aidbox
-AUTH_USER=root AUTH_PASSWORD=secret BASE_URL=http://aidbox:8080 \
-  run insert.js --tag testid=aidbox
+function runAidbox() {
+  AUTH_USER=root AUTH_PASSWORD=secret BASE_URL=http://aidbox:8080 run --tag ${IDTAG}=aidbox "$@"
+}
 
-# hapi
-BASE_URL=http://hapi:8080/fhir \
-  run insert.js --tag testid=hapi
+function runHapi() {
+  BASE_URL=http://hapi:8080/fhir run --tag ${IDTAG}=hapi "$@"
+}
+
+runAidbox insert.js
+runHapi insert.js

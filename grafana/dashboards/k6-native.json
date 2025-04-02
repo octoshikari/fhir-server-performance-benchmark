@@ -273,7 +273,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "avg(k6_vus{testid=~\"$testid\"})",
+          "expr": "avg(k6_vus{fhirimpl=~\"$fhirimpl\"})",
           "instant": false,
           "legendFormat": "vus",
           "range": true,
@@ -285,7 +285,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by (le) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by (le) (rate(k6_http_req_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_duration_q$quantile",
@@ -298,7 +298,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(irate(k6_http_reqs_total{testid=~\"$testid\"}[$__rate_interval]))",
+          "expr": "sum(irate(k6_http_reqs_total{fhirimpl=~\"$fhirimpl\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_s",
@@ -311,7 +311,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "avg(round(k6_http_req_failed_rate{testid=~\"$testid\"}, 0.1)*100)",
+          "expr": "avg(round(k6_http_req_failed_rate{fhirimpl=~\"$fhirimpl\"}, 0.1)*100)",
           "hide": true,
           "instant": false,
           "legendFormat": "http_req_failed",
@@ -324,7 +324,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(irate(k6_http_reqs_total{testid=~\"$testid\", expected_response=\"false\"}[$__rate_interval]))",
+          "expr": "sum(irate(k6_http_reqs_total{fhirimpl=~\"$fhirimpl\", expected_response=\"false\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_s_errors",
@@ -399,7 +399,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(k6_http_reqs_total{testid=~\"$testid\"})",
+          "expr": "sum(k6_http_reqs_total{fhirimpl=~\"$fhirimpl\"})",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -461,7 +461,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(k6_http_reqs_total{testid=~\"$testid\", expected_response=\"false\"})",
+          "expr": "sum(k6_http_reqs_total{fhirimpl=~\"$fhirimpl\", expected_response=\"false\"})",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -522,7 +522,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(irate(k6_http_reqs_total{testid=~\"$testid\"}[$__rate_interval]))",
+          "expr": "sum(irate(k6_http_reqs_total{fhirimpl=~\"$fhirimpl\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -584,7 +584,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -675,7 +675,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "avg(irate(k6_data_sent_total{testid=~\"$testid\"}[$__rate_interval]))",
+          "expr": "avg(irate(k6_data_sent_total{fhirimpl=~\"$fhirimpl\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "data_sent",
           "range": true,
@@ -688,7 +688,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg(irate(k6_data_received_total{testid=~\"$testid\"}[$__rate_interval]))",
+          "expr": "avg(irate(k6_data_received_total{fhirimpl=~\"$fhirimpl\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "data_received",
@@ -793,7 +793,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_iteration_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_iteration_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "instant": false,
           "legendFormat": "iteration_duration_q$quantile",
           "range": true,
@@ -806,7 +806,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg(k6_dropped_iterations_total{testid=~\"$testid\"})",
+          "expr": "avg(k6_dropped_iterations_total{fhirimpl=~\"$fhirimpl\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "dropped_iterations",
@@ -927,7 +927,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_blocked_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_blocked_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_blocked_q$quantile",
@@ -940,7 +940,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_tls_handshaking_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_tls_handshaking_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_tls_handshaking_q$quantile",
@@ -953,7 +953,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_sending_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_sending_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_sending_q$quantile",
@@ -966,7 +966,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_waiting_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_waiting_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_waiting_q$quantile",
@@ -979,7 +979,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_receiving_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_receiving_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_receiving_q$quantile",
@@ -992,7 +992,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_duration_q$quantile",
@@ -1131,7 +1131,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by (le) ((rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval]))))",
+          "expr": "histogram_quantile($quantile, sum by (le) ((rate(k6_http_req_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval]))))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_duration_q$quantile",
@@ -1144,7 +1144,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_waiting_seconds{testid=~\"$testid\", expected_response=\"true\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_waiting_seconds{fhirimpl=~\"$fhirimpl\", expected_response=\"true\"}[$__rate_interval])))",
           "instant": false,
           "legendFormat": "success_http_req_duration_q$quantile",
           "range": true,
@@ -1156,7 +1156,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_waiting_seconds{testid=~\"$testid\", expected_response=\"false\"}[$__rate_interval])))",
+          "expr": "histogram_quantile($quantile, sum by(le) (rate(k6_http_req_waiting_seconds{fhirimpl=~\"$fhirimpl\", expected_response=\"false\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "errors_http_req_duration_q$quantile",
@@ -1325,7 +1325,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(irate(k6_http_reqs_total{testid=~\"$testid\"}[$__rate_interval]))",
+          "expr": "sum(irate(k6_http_reqs_total{fhirimpl=~\"$fhirimpl\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "http_req_s",
           "range": true,
@@ -1337,7 +1337,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(irate(k6_http_reqs_total{testid=~\"$testid\", expected_response=\"false\"}[$__rate_interval]))",
+          "expr": "sum(irate(k6_http_reqs_total{fhirimpl=~\"$fhirimpl\", expected_response=\"false\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_s_errors",
@@ -1350,7 +1350,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(irate(k6_http_reqs_total{testid=~\"$testid\", expected_response=\"true\"}[$__rate_interval]))",
+          "expr": "sum(irate(k6_http_reqs_total{fhirimpl=~\"$fhirimpl\", expected_response=\"true\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "http_req_s_success",
@@ -1505,7 +1505,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -1519,7 +1519,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(1, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(1, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -1533,7 +1533,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -1547,7 +1547,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{fhirimpl=~\"$fhirimpl\"}[$__rate_interval])))",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -1755,7 +1755,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "round(k6_checks_rate{testid=~\"$testid\"}, 0.1)",
+          "expr": "round(k6_checks_rate{fhirimpl=~\"$fhirimpl\"}, 0.1)",
           "format": "table",
           "instant": false,
           "legendFormat": "__auto",
@@ -1768,7 +1768,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "round(k6_checks_rate{testid=~\"$testid\"}, 0.1)",
+          "expr": "round(k6_checks_rate{fhirimpl=~\"$fhirimpl\"}, 0.1)",
           "hide": true,
           "instant": false,
           "legendFormat": "__auto",
@@ -1921,7 +1921,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "avg(round(k6_checks_rate{testid=~\"$testid\"}, 0.1)*100)",
+          "expr": "avg(round(k6_checks_rate{fhirimpl=~\"$fhirimpl\"}, 0.1)*100)",
           "instant": false,
           "legendFormat": "k6_checks_rate",
           "range": true,
@@ -1956,7 +1956,7 @@
       "type": "text"
     }
   ],
-  "refresh": "",
+  "refresh": "5s",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [
@@ -1992,16 +1992,16 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(testid)",
-        "description": "Filter by \"testid\" tag. Define it by tagging: k6 run --tag testid=xyz",
+        "definition": "label_values(fhirimpl)",
+        "description": "Filter by \"fhirimpl\" tag. Define it by tagging: k6 run --tag fhirimpl=xyz",
         "hide": 0,
         "includeAll": true,
-        "label": "Test ID",
+        "label": "FHIR implementation",
         "multi": true,
-        "name": "testid",
+        "name": "fhirimpl",
         "options": [],
         "query": {
-          "query": "label_values(testid)",
+          "query": "label_values(fhirimpl)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -2047,7 +2047,7 @@
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
