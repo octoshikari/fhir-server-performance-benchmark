@@ -102,6 +102,7 @@ services:
 
   postgres:
     image: healthsamurai/aidboxdb:17
+    command: postgres -c config_file=/postgres.conf
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -111,7 +112,8 @@ services:
       start_period: 10s
     volumes:
       - pgdata:/var/lib/postgresql/data:delegated
-      - ./postgres:/docker-entrypoint-initdb.d
+      - ./postgres/init:/docker-entrypoint-initdb.d
+      - ./postgres/postgres.conf:/postgres.conf
 
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter
