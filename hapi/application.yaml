@@ -34,6 +34,8 @@ spring:
     username: postgres
     password: postgres
     driverClassName: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 8
   jpa:
     properties:
       hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
