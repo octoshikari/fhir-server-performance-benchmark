@@ -1,8 +1,8 @@
 import http from 'k6/http';
 import exec from 'k6/execution';
-import { b64encode } from 'k6/encoding';
-import { check, group } from 'k6';
-import { randomString } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
+import { check, group, fail } from 'k6';
+
+import authenticate from './auth.js';
 
 import resPatient from './seed/patient.js';
 import resObservation from './seed/observation.js';
@@ -21,28 +21,22 @@ export const options = {
     insert: {
       executor: 'shared-iterations',
       vus: 100,
-      iterations: 10000,
+      iterations: 100000,
       maxDuration: '60s',
     },
   },
 };
 
 export function setup() {
-  const headers = {
-    "Accept-Encoding": "gzip",
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-  }
-  const baseUrl = __ENV.BASE_URL;
-  const authUser = __ENV.AUTH_USER;
-  const authPassword = __ENV.AUTH_PASSWORD;
-  if (authUser && authPassword) {
-    const encodedCredentials = b64encode(`${authUser}:${authPassword}`);
-    headers["Authorization"] = `Basic ${encodedCredentials}`;
-  };
   return {
-    baseUrl,
-    params: { headers },
+    baseUrl: __ENV.BASE_URL,
+    params: {
+      headers: authenticate({
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      })
+    },
   }
 }
 
