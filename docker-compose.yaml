@@ -11,7 +11,6 @@ services:
     environment:
       BOX_ADMIN_PASSWORD: secret
       BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
-      BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
       BOX_DB_DATABASE: aidbox
       BOX_DB_HOST: postgres
       BOX_DB_PASSWORD: postgres
@@ -25,11 +24,9 @@ services:
       BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
       BOX_FHIR_SEARCH_COMPARISONS: true
       BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
-      BOX_LICENSE: <LICENSE>
       BOX_METRICS_PORT: 8379
       BOX_ROOT_CLIENT_SECRET: secret
       BOX_SEARCH_INCLUDE_CONFORMANT: true
-      BOX_SECURITY_AUDIT_LOG_ENABLED: true
       BOX_SECURITY_DEV_MODE: true
       BOX_SETTINGS_MODE: read-write
       BOX_WEB_BASE_URL: http://localhost:8080
