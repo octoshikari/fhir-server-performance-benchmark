@@ -31,6 +31,12 @@ export default
       }
     ]
   },
+  "encounter": {
+    "reference": "Encounter/834823d5-da27-4685-ba3b-5bd316e92682"
+  },
+  "subject": {
+    "reference": "Patient/fd7382da-c790-4b9d-bc2e-b4265a00a7f1"
+  },
   "resourceType": "Observation",
   "status": "final",
   "valueQuantity": {

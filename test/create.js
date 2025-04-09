@@ -3,16 +3,17 @@ import exec from 'k6/execution';
 import { check, group, fail } from 'k6';
 
 import authenticate from './auth.js';
+import jsonPatch from './json.js';
 
-import resPatient from './seed/patient.js';
-import resObservation from './seed/observation.js';
-import resEncounter from './seed/encounter.js';
-import resPractitioner from './seed/practitioner.js';
-import resMedicationRequest from './seed/medication-request.js';
-import resOrganization from './seed/organization.js';
-import resClaim from './seed/claim.js';
-import resLocation from './seed/location.js';
-import resExplanationOfBenefit from './seed/explanation-of-benefit.js';
+import claim from './seed/claim.js';
+import encounter from './seed/encounter.js';
+import explanationOfBenefit from './seed/explanation-of-benefit.js';
+import location from './seed/location.js';
+import medicationRequest from './seed/medication-request.js';
+import observation from './seed/observation.js';
+import organization from './seed/organization.js';
+import patient from './seed/patient.js';
+import practitioner from './seed/practitioner.js';
 
 
 export const options = {
@@ -37,99 +38,99 @@ export function setup() {
         "Content-Type": "application/json",
       })
     },
+    seeds: {
+      claim: JSON.stringify(claim),
+      encounter: JSON.stringify(encounter),
+      explanationOfBenefit: JSON.stringify(explanationOfBenefit),
+      location: JSON.stringify(location),
+      medicationRequest: JSON.stringify(medicationRequest),
+      observation: JSON.stringify(observation),
+      organization: JSON.stringify(organization),
+      patient: JSON.stringify(patient),
+      practitioner: JSON.stringify(practitioner),
+    }
   }
 }
 
-export default function (inputs) {
-  let claimId, encounterId, locationId, medicationRequestId, organizationId, patientId, practitionerId;
+export default function ({ baseUrl, params, seeds }) {
+  const ids = {}
 
   group('Patient', () => {
-    const x = http.post(`${inputs.baseUrl}/Patient`, JSON.stringify(resPatient), inputs.params);
+    const x = http.post(`${baseUrl}/Patient`, seeds.patient, params);
     if (!check(x, { 'Patient created': ({ status }) => status === 201 })) return;
-    patientId = x.json('id');
+    ids.patient = `Patient/${x.json('id')}`;
   })
 
   group('Location', () => {
-    const x = http.post(`${inputs.baseUrl}/Location`, JSON.stringify(resLocation), inputs.params);
+    const x = http.post(`${baseUrl}/Location`, seeds.location, params);
     if (!check(x, { 'Location created': ({ status }) => status === 201 })) return;
-    locationId = x.json('id');
+    ids.location = `Location/${x.json('id')}`;
   })
 
   group('Organization', () => {
-    const x = http.post(`${inputs.baseUrl}/Organization`, JSON.stringify(resOrganization), inputs.params);
+    const x = http.post(`${baseUrl}/Organization`, seeds.organization, params);
     if (!check(x, { 'Organization created': ({ status }) => status === 201 })) return;
-    organizationId = x.json('id');
+    ids.organization = `Organization/${x.json('id')}`;
   })
 
   group('Practitioner', () => {
-    const x = http.post(`${inputs.baseUrl}/Practitioner`, JSON.stringify(resPractitioner), inputs.params);
+    const x = http.post(`${baseUrl}/Practitioner`, seeds.practitioner, params);
     if (!check(x, { 'Practitioner created': ({ status }) => status === 201 })) return;
-    practitionerId = x.json('id');
+    ids.practitioner = `Practitioner/${x.json('id')}`;
   })
 
   group('Encounter', () => {
-    const payload = Object.assign({}, resEncounter, {
-      subject: { reference: `Patient/${patientId}`},
-      location: [Object.assign({}, resEncounter.location[0], {
-        location: { reference: `Location/${locationId}` }})],
-      participant: [Object.assign({}, resEncounter.participant[0], {
-        individual: { reference: `Practitioner/${practitionerId}` }})],
-      serviceProvider: { reference: `Organization/${organizationId}` },
-    });
-    const x = http.post(`${inputs.baseUrl}/Encounter`, JSON.stringify(payload), inputs.params);
+    const payload = JSON.parse(seeds.encounter);
+    jsonPatch(payload, 'subject.reference', ids.patient);
+    jsonPatch(payload, 'location.0.location.reference', ids.location);
+    jsonPatch(payload, 'participant.0.individual.reference', ids.practitioner);
+    jsonPatch(payload, 'serviceProvider.reference', ids.organization);
+    const x = http.post(`${baseUrl}/Encounter`, JSON.stringify(payload), params);
     if (!check(x, { 'Encounter created': ({ status }) => status === 201 })) return;
-    encounterId = x.json('id');
+    ids.encounter = `Encounter/${x.json('id')}`;
   })
 
   group('Observation', () => {
-    const payload = Object.assign({}, resObservation, {
-      encounter: { reference: `Encounter/${encounterId}` },
-      subject: { reference: `Patient/${patientId}` }});
-    const x = http.post(`${inputs.baseUrl}/Observation`, JSON.stringify(payload), inputs.params);
+    const payload = JSON.parse(seeds.observation);
+    jsonPatch(payload, 'encounter.reference', ids.encounter);
+    jsonPatch(payload, 'subject.reference', ids.patient);
+    const x = http.post(`${baseUrl}/Observation`, JSON.stringify(payload), params);
     if (!check(x, { 'Observation created': ({ status }) => status === 201 })) return;
   })
 
   group('MedicationRequest', () => {
-    const payload = Object.assign({}, resMedicationRequest, {
-      encounter: { reference: `Encounter/${encounterId}` },
-      requester: { reference: `Practitioner/${practitionerId}` },
-      subject: { reference: `Patient/${patientId}` }});
-    const x = http.post(`${inputs.baseUrl}/MedicationRequest`, JSON.stringify(payload), inputs.params);
+    const payload = JSON.parse(seeds.medicationRequest);
+    jsonPatch(payload, 'encounter.reference', ids.encounter);
+    jsonPatch(payload, 'requester.reference', ids.practitioner);
+    jsonPatch(payload, 'subject.reference', ids.patient);
+    const x = http.post(`${baseUrl}/MedicationRequest`, JSON.stringify(payload), params);
     if (!check(x, { 'MedicationRequest created': ({ status }) => status === 201 })) return;
-    medicationRequestId = x.json('id');
+    ids.medicationRequest = `MedicationRequest/${x.json('id')}`;
   })
 
   group('Claim', () => {
-    const payload = Object.assign({}, resClaim, {
-      patient: { reference: `Patient/${patientId}` },
-      provider: { reference: `Organization/${organizationId}` },
-      prescription: { reference: `MedicationRequest/${medicationRequestId}` },
-      item: [ Object.assign({}, resClaim.item[0], {
-        encounter: [{ reference: `Encounter/${encounterId}` }]})]});
-    const x = http.post(`${inputs.baseUrl}/Claim`, JSON.stringify(payload), inputs.params);
+    const payload = JSON.parse(seeds.claim);
+    jsonPatch(payload, 'patient.reference', ids.patient);
+    jsonPatch(payload, 'provider.reference', ids.organization);
+    jsonPatch(payload, 'prescription.reference', ids.medicationRequest);
+    jsonPatch(payload, 'item.0.encounter.0.reference', ids.encounter);
+    const x = http.post(`${baseUrl}/Claim`, JSON.stringify(payload), params);
     if (!check(x, { 'Claim created': ({ status }) => status === 201 })) return;
-    claimId = x.json('id');
+    ids.claim = `Claim/${x.json('id')}`;
   })
 
   group('ExplanationOfBenefit', () => {
-    const payload = Object.assign({}, resExplanationOfBenefit, {
-      contained: [
-        Object.assign({}, resExplanationOfBenefit.contained[0], {
-          subject: { reference: `Patient/${patientId}` },
-          requester: { reference: `Practitioner/${practitionerId}` },
-          performer: [{ reference: `Patient/${patientId}` }]}),
-        Object.assign({}, resExplanationOfBenefit.contained[1], {
-          beneficiary: { reference: `Patient/${patientId}` }})],
-      patient: { reference: `Patient/${patientId}` },
-      provider: { reference: `Practitioner/${practitionerId}` },
-      claim: { reference: `Claim/${claimId}` },
-      careTeam: [ Object.assign({}, resExplanationOfBenefit.careTeam[0], {
-        provider: { reference: `Practitioner/${practitionerId}` }})],
-      item: [
-        Object.assign({}, resExplanationOfBenefit.item[0], {
-          encounter: [{ reference: `Encounter/${encounterId}` }]}),
-        Object.assign({}, resExplanationOfBenefit.item[1])]});
-    const x = http.post(`${inputs.baseUrl}/ExplanationOfBenefit`, JSON.stringify(payload), inputs.params);
+    const payload = JSON.parse(seeds.explanationOfBenefit);
+    jsonPatch(payload, 'contained.0.subject.reference', ids.patient);
+    jsonPatch(payload, 'contained.0.requester.reference', ids.practitioner);
+    jsonPatch(payload, 'contained.0.performer.0.reference', ids.patient);
+    jsonPatch(payload, 'contained.1.beneficiary.reference', ids.patient);
+    jsonPatch(payload, 'patient.reference', ids.patient);
+    jsonPatch(payload, 'provider.reference', ids.practitioner);
+    jsonPatch(payload, 'claim.reference', ids.claim);
+    jsonPatch(payload, 'careTeam.0.provider.reference', ids.practitioner);
+    jsonPatch(payload, 'item.0.encounter.0.reference', ids.encounter);
+    const x = http.post(`${baseUrl}/ExplanationOfBenefit`, JSON.stringify(payload), params);
     if (!check(x, { 'ExplanationOfBenefit created': ({ status }) => status === 201 })) return;
   })
 }
