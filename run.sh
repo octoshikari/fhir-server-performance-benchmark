@@ -3,11 +3,14 @@
 set -e
 
 IDTAG=fhirimpl
-TIMEOUT=60
+PAUSE=60
+
+function pause() {
+  sleep $PAUSE
+}
 
 function run() {
   k6 run -o experimental-prometheus-rw "$@"
-  sleep $TIMEOUT
 }
 
 function runAidbox() {
@@ -28,5 +31,7 @@ function runMedplum() {
 }
 
 runAidbox  create.js
+pause
 runHapi    create.js
+pause
 runMedplum create.js

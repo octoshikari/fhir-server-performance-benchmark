@@ -90,6 +90,19 @@ services:
     networks:
       - global
 
+  readiness:
+    image: bash
+    command:
+      - -c
+      - echo -e "\n\nAll services are up and running\n\n"
+    depends_on:
+      aidbox:
+        condition: service_healthy
+      hapi-checker:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+
   k6:
     image: grafana/k6
     command:
