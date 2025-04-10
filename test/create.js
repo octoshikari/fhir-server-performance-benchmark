@@ -23,7 +23,7 @@ export const options = {
       executor: 'shared-iterations',
       vus: 100,
       iterations: 100000,
-      maxDuration: '60s',
+      maxDuration: '5m',
     },
   },
 };

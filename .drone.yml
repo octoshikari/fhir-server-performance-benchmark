@@ -58,3 +58,4 @@ steps:
   - docker compose up -d
   - docker ps -a
   - docker compose run --rm k6
+  - sleep 180 # wait for finish remote write
