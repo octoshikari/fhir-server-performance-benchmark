@@ -57,5 +57,4 @@ steps:
   - sleep 10 # give docker enough time to start
   - docker compose up -d
   - docker ps -a
-  - sleep 10000 # give docker enough time to start
   - docker compose run --rm k6
