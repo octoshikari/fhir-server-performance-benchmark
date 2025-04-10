@@ -16,6 +16,7 @@ services:
   - name: dockersock
     path: /var/run
   commands:
+  - sleep 10 # give docker enough time to start
   - docker compose up -d
 
 steps:
