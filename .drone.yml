@@ -15,8 +15,6 @@ services:
   volumes:
   - name: dockersock
     path: /var/run
-  commands:
-  - echo '{"metrics-addr": "127.0.0.1:9323" }' > /etc/docker/daemon.json
 
 steps:
 - name: activate-aidbox
