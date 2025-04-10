@@ -17,14 +17,25 @@ services:
     path: /var/run
 
 steps:
+- name: activate-aidbox
+  image: alpine:latest
+  environment:
+    LICENSE:
+      from_secret: LICENSE
+  commands:
+  - |
+    cat > docker-compose.override1.yml << EOF
+    services:
+      aidbox:
+        environment:
+          BOX_LICENSE: $LICENSE
+    EOF
+
 - name: test 
   image: docker:dind
   volumes:
   - name: dockersock
     path: /var/run
-  environment:
-    LICENSE:
-      from_secret: LICENSE
   commands:
   - sleep 10 # give docker enough time to start
   - docker compose up -d
