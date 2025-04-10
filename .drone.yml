@@ -24,12 +24,13 @@ steps:
       from_secret: LICENSE
   commands:
   - |
-    cat > docker-compose.override1.yml << EOF
+    cat > docker-compose.override.yml << EOF
     services:
       aidbox:
         environment:
           BOX_LICENSE: $LICENSE
     EOF
+  - cat docker-compose.override.yml
 
 - name: test 
   image: docker:dind
