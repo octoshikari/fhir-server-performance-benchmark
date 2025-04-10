@@ -24,6 +24,6 @@ steps:
     path: /var/run
   commands:
   - sleep 5 # give docker enough time to start
-  - docker compose up
+  - docker compose up -d
   - docker ps -a
   - sleep 5 # give docker enough time to start
