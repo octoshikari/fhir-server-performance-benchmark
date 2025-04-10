@@ -9,26 +9,24 @@ volumes:
   temp: {}
 
 services:
-- name: infra
+- name: dind
   image: docker:dind
   privileged: true
   volumes:
   - name: dockersock
     path: /var/run
-  commands:
-  - sleep 10 # give docker enough time to start
-  - docker compose up -d
 
 steps:
 - name: test 
   image: docker:dind
-  environment:
-    LICENSE:
-      from_secret: LICENSE
   volumes:
   - name: dockersock
     path: /var/run
+  environment:
+    LICENSE:
+      from_secret: LICENSE
   commands:
   - sleep 10 # give docker enough time to start
+  - docker compose up -d
   - docker ps -a
-  - sleep 5 # give docker enough time to start
+  - docker compose run --rm k6
