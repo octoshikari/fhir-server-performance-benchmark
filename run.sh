@@ -4,13 +4,14 @@ set -e
 
 IDTAG=fhirimpl
 PAUSE=60
+RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 function pause() {
   sleep $PAUSE
 }
 
 function run() {
-  k6 run -o experimental-prometheus-rw "$@"
+  k6 run -o experimental-prometheus-rw --tag "runid=${RUNID}" "$@"
 }
 
 function runAidbox() {
