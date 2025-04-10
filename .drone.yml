@@ -1,0 +1,11 @@
+kind: pipeline
+type: docker
+name: benchmark
+node:
+  node: hz-cdr
+
+steps:
+  - name: test
+    image: alpine:latest
+    commands:
+    - ls -lah
