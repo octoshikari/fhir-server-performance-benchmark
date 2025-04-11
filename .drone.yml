@@ -19,7 +19,7 @@ services:
   - mkdir -p /etc/docker
   - |
     echo '{"metrics-addr": "127.0.0.0:9323"}' > /etc/docker/daemon.json
-  - /docker-entrypoint.sh
+  - dockerd-entrypoint.sh
 
 steps:
 - name: activate-aidbox
