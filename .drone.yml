@@ -16,7 +16,9 @@ services:
   - name: dockersock
     path: /var/run
   commands:
-  - docker-entrypoint.sh --metrics-addr 127.0.0.1:9323
+  - |
+    echo '{"metrics-addr": "127.0.0.0:9323"}' > /etc/docker/daemon.json
+  - docker-entrypoint.sh
 
 steps:
 - name: activate-aidbox
