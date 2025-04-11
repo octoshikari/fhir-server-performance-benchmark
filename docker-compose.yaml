@@ -224,7 +224,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     ports:
-      - "8090:8080"
+      - "5544:8080"
     restart: unless-stopped
     networks:
       - global
