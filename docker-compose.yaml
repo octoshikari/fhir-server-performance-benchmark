@@ -154,9 +154,9 @@ services:
         condition: service_healthy
     networks:
       - global
-    ports:
-      - "5000:5000"
-      - "8103:8103"
+    # ports:
+    #   - "5000:5000"
+    #   - "8103:8103"
     volumes:
       - ./medplum:/srv
 
