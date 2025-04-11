@@ -197,6 +197,8 @@ services:
       - --enable-feature=native-histograms
       - --storage.tsdb.path=/prometheus
       - --web.enable-remote-write-receiver
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: wget -O - http://localhost:9090/-/ready
       interval: 5s
