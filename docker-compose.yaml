@@ -148,6 +148,7 @@ services:
         limits:
           cpus: '8'
           memory: 4G
+      replicas: 8
     depends_on:
       postgres:
         condition: service_healthy

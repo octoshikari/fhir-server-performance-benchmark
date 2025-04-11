@@ -31,8 +31,8 @@ function runMedplum() {
     run --tag ${IDTAG}=medplum "$@"
 }
 
+runMedplum create.js
+pause
 runAidbox  create.js
 pause
 runHapi    create.js
-pause
-runMedplum create.js

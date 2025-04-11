@@ -27,7 +27,8 @@
     "port": 5432,
     "dbname": "medplum",
     "username": "postgres",
-    "password": "postgres"
+    "password": "postgres",
+    "maxConnections": 16
   },
   "redis": {
     "host": "redis",
