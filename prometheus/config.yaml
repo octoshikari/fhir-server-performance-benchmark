@@ -7,17 +7,22 @@ global:
   evaluation_interval: 10s
 runtime:
   gogc: 75
-scrape_configs:
 
-  - job_name: postgres
-    static_configs:
-      - targets: ["postgres-exporter:9187"]
+scrape_configs:
 
   - job_name: aidbox
     static_configs:
       - targets: ["aidbox:8379"]
 
+  - job_name: docker
+    static_configs:
+      - targets: ["host.docker.internal:9323"]
+
   - job_name: hapi
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ["hapi:8080"]
+
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres-exporter:9187"]

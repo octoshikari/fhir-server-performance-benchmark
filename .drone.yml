@@ -15,6 +15,8 @@ services:
   volumes:
   - name: dockersock
     path: /var/run
+  commands:
+  - docker-entrypoint.sh --metrics-addr 127.0.0.1:9323
 
 steps:
 - name: activate-aidbox
@@ -38,7 +40,7 @@ steps:
       from_secret: VMAUTH
   commands:
   - |
-    cat >> prometheus/config.yaml << EOF
+    cat << EOF >> prometheus/config.yaml
     remote_write:
     - url: https://vm.cdr.aidbox.dev/api/v1/write
       basic_auth:
@@ -48,7 +50,7 @@ steps:
     EOF
   - cat prometheus/config.yaml
 
-- name: test 
+- name: test
   image: docker:dind
   volumes:
   - name: dockersock
