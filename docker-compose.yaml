@@ -215,7 +215,6 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
     network_mode: "host"
     privileged: true
     volumes:
