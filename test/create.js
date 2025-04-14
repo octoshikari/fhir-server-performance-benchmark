@@ -18,18 +18,10 @@ import practitioner from './seed/practitioner.js';
 export const options = {
   discardResponseBodies: false,
   scenarios: {
-    warmup: {
-      executor: 'per-vu-iterations',
-      vus: 100,
-      iterations: 1000,
-      maxDuration: '45s',
-      gracefulStop: '5s',
-    },
     insert: {
       executor: 'shared-iterations',
       vus: 100,
       iterations: 100000,
-      startTime: '50s',
       maxDuration: '5m',
     },
   },
