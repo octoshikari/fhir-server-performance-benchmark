@@ -49,6 +49,18 @@ services:
     ports:
       - 8080:8080
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    networks:
+      - global
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
   grafana:
     image: grafana/grafana-oss
     depends_on:
@@ -228,18 +240,5 @@ services:
 
   redis:
     image: redis
-    networks:
-      - global
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    restart: unless-stopped
     networks:
       - global
