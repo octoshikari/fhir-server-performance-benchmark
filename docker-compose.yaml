@@ -8,6 +8,7 @@ volumes:
 services:
   aidbox:
     image: healthsamurai/aidboxone:edge
+    pull_policy: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,6 +84,7 @@ services:
 
   hapi:
     image: hapiproject/hapi:latest
+    pull_policy: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -124,6 +126,8 @@ services:
         condition: service_healthy
       hapi-checker:
         condition: service_healthy
+      medplum-checker:
+        condition: service_healthy
       prometheus:
         condition: service_healthy
 
@@ -136,6 +140,8 @@ services:
       aidbox:
         condition: service_healthy
       hapi-checker:
+        condition: service_healthy
+      medplum-checker:
         condition: service_healthy
       prometheus:
         condition: service_healthy
@@ -155,6 +161,7 @@ services:
 
   medplum:
     image: medplum/medplum-server
+    pull_policy: always
     command:
       - file:/srv/config.json
     deploy:
@@ -162,7 +169,6 @@ services:
         limits:
           cpus: '8'
           memory: 4G
-      # replicas: 8
     depends_on:
       postgres:
         condition: service_healthy
