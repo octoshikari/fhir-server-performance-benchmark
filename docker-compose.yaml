@@ -206,7 +206,7 @@ services:
 
   postgres:
     container_name: perf-postgres
-    image: healthsamurai/aidboxdb:17
+    image: postgres:17
     command: postgres -c config_file=/postgres.conf
     deploy:
       resources:
