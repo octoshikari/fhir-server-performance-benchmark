@@ -59,3 +59,4 @@ steps:
   - docker ps -a
   - docker compose run --name perf-k6 --rm k6
   - sleep 180 # wait for finish remote write
+  - docker compose down -v
