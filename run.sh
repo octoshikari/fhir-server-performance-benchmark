@@ -47,3 +47,9 @@ pause
 runAidbox  create.js
 pause
 runHapi    create.js
+pause
+runMedplum read.js
+pause
+runAidbox  read.js
+pause
+runHapi    read.js
