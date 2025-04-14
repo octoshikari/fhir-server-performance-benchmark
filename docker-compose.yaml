@@ -43,6 +43,7 @@ services:
       test: curl -f http://localhost:8080/health
       interval: 30s
       start_period: 30s
+      retries: 10
     networks:
       - global
     ports:
@@ -97,6 +98,7 @@ services:
       test: curl -f http://hapi:8080/actuator/health/readiness
       interval: 10s
       start_period: 30s
+      retries: 10
     networks:
       - global
 
@@ -159,6 +161,21 @@ services:
       - "8103:8103"
     volumes:
       - ./medplum:/srv
+
+  medplum-checker:
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      medplum:
+        condition: service_started
+    entrypoint: /bin/sh
+    healthcheck:
+      test: curl -f http://medplum:8103/healthcheck
+      interval: 10s
+      start_period: 30s
+      retries: 10
+    networks:
+      - global
 
   postgres:
     image: healthsamurai/aidboxdb:17
