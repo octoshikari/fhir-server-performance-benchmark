@@ -209,7 +209,7 @@
         "tooltip": {
           "hideZeros": false,
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "pluginVersion": "11.6.0",
@@ -561,5 +561,5 @@
   "timezone": "browser",
   "title": "Perf",
   "uid": "behmnvys693i8b",
-  "version": 2
+  "version": 3
 }
