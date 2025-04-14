@@ -7,6 +7,7 @@ volumes:
 
 services:
   aidbox:
+    container_name: perf-aidbox
     image: healthsamurai/aidboxone:edge
     pull_policy: always
     depends_on:
@@ -51,6 +52,7 @@ services:
       - 8080:8080
 
   cadvisor:
+    container_name: perf-cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
     networks:
       - global
@@ -63,6 +65,7 @@ services:
       - /dev/disk/:/dev/disk:ro
 
   grafana:
+    container_name: perf-grafana
     image: grafana/grafana-oss
     depends_on:
       prometheus:
@@ -83,6 +86,7 @@ services:
       - ./grafana:/etc/grafana/provisioning:ro
 
   hapi:
+    container_name: perf-hapi
     image: hapiproject/hapi:latest
     pull_policy: always
     depends_on:
@@ -102,6 +106,7 @@ services:
       - ./curl:/mnt:ro
 
   hapi-checker:
+    container_name: perf-hapi-check
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -117,6 +122,7 @@ services:
       - global
 
   readiness:
+    container_name: perf-readiness
     image: bash
     command:
       - -c
@@ -132,6 +138,7 @@ services:
         condition: service_healthy
 
   k6:
+    container_name: perf-k6
     image: grafana/k6
     command:
       - -c
@@ -160,6 +167,7 @@ services:
     working_dir: /test
 
   medplum:
+    container_name: perf-medplum
     image: medplum/medplum-server
     pull_policy: always
     command:
@@ -181,6 +189,7 @@ services:
       - ./medplum:/srv
 
   medplum-checker:
+    container_name: perf-medplum-check
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -196,6 +205,7 @@ services:
       - global
 
   postgres:
+    container_name: perf-postgres
     image: healthsamurai/aidboxdb:17
     command: postgres -c config_file=/postgres.conf
     deploy:
@@ -218,6 +228,7 @@ services:
       - ./postgres/postgres.conf:/postgres.conf
 
   postgres-exporter:
+    container_name: perf-postgres-exporter
     image: quay.io/prometheuscommunity/postgres-exporter
     environment:
       DATA_SOURCE_URI: postgres:5432/postgres?sslmode=disable
@@ -227,6 +238,7 @@ services:
       - global
 
   prometheus:
+    container_name: perf-prometheus
     image: prom/prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
@@ -245,6 +257,7 @@ services:
       - ./prometheus/config.yaml:/etc/prometheus/prometheus.yml
 
   redis:
+    container_name: perf-redis
     image: redis
     networks:
       - global
