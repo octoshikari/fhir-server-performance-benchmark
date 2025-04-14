@@ -54,8 +54,8 @@ steps:
   - name: dockersock
     path: /var/run
   commands:
+  - sleep 10 # give docker enough time to start
   - docker compose up -d
-  - sleep 30 # give docker enough time to start
   - docker ps -a
   - docker compose run --name perf-k6 --rm k6
   - sleep 180 # wait for finish remote write
