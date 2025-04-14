@@ -35,7 +35,7 @@ Activate aidbox http://localhost:8080
 ## Run tests
 
 ```
-docker compose run --rm k6
+docker compose run --name perf-k6 --rm k6
 ```
 
 

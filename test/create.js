@@ -1,9 +1,8 @@
 import http from 'k6/http';
-import exec from 'k6/execution';
-import { check, group, fail } from 'k6';
+import { check, group } from 'k6';
 
-import authenticate from './auth.js';
-import jsonPatch from './json.js';
+import authenticate from './lib/auth.js';
+import jsonPatch from './lib/json.js';
 
 import claim from './seed/claim.js';
 import encounter from './seed/encounter.js';
@@ -19,10 +18,18 @@ import practitioner from './seed/practitioner.js';
 export const options = {
   discardResponseBodies: false,
   scenarios: {
+    warmup: {
+      executor: 'per-vu-iterations',
+      vus: 100,
+      iterations: 1000,
+      maxDuration: '45s',
+      gracefulStop: '5s',
+    },
     insert: {
       executor: 'shared-iterations',
       vus: 100,
       iterations: 100000,
+      startTime: '50s',
       maxDuration: '5m',
     },
   },
