@@ -18,7 +18,7 @@ import practitioner from './seed/practitioner.js';
 export const options = {
   discardResponseBodies: false,
   scenarios: {
-    insert: {
+    create: {
       executor: 'shared-iterations',
       vus: 100,
       iterations: 100000,
