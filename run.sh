@@ -3,7 +3,7 @@
 set -e
 
 IDTAG=fhirimpl
-PAUSE=60
+PAUSE=30
 RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 RUN_ARGS="--tag runid=${RUNID}"
 

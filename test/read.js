@@ -11,9 +11,8 @@ export const options = {
     read: {
       executor: 'shared-iterations',
       vus: 100,
-      iterations: 100000,
-      maxDuration: '1m',
-      gracefulStop: '5s',
+      iterations: 1000000,
+      maxDuration: '5m',
     },
   },
 };
