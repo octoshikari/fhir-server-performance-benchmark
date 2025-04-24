@@ -42,5 +42,6 @@
       "count": 1
     }
   },
-  "shutdownTimeoutMilliseconds": 30000
+  "shutdownTimeoutMilliseconds": 30000,
+  "maxJsonSize": "100mb"
 }

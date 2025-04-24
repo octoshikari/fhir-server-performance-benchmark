@@ -6,6 +6,7 @@ volumes:
   pgdata:
   promdata:
   redisdata:
+  tgzdata:
 
 services:
   aidbox:
@@ -134,6 +135,8 @@ services:
       medplum-checker0:
         condition: service_healthy
       prometheus:
+        condition: service_healthy
+      tgz:
         condition: service_healthy
     entrypoint: /run.sh
     environment:
@@ -541,3 +544,14 @@ services:
       - global
     volumes:
       - redisdata:/data
+
+  tgz:
+    build:
+      context: tgz
+    command:
+      - "https://storage.googleapis.com/aidbox-public/synthea/performance/bulk_1k.tar.gz"
+    ports:
+      - "8081:8080"
+    volumes:
+      - tgzdata:/data
+    working_dir: /data
