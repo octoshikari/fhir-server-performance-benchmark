@@ -38,7 +38,7 @@ export function setup() {
     },
   }
   resourceTypes.forEach(rt => {
-    const x = http.get(`${payload.baseUrl}/${rt}?_count=100`, payload.params);
+    const x = http.get(http.url`${payload.baseUrl}/${rt}?_count=100`, payload.params);
     if (!check(x, { [`${rt} list`]: ({ status }) => status === 200 })) {
       fail(`${rt} list => ${x.status}`);
     }
@@ -51,7 +51,7 @@ export default function ({ baseUrl, ids, params }) {
   Object.entries(ids).forEach(([rt, ids]) => {
     group(rt, () => {
       const id = randomItem(ids);
-      const x = http.get(`${baseUrl}/${rt}/${id}`, params);
+      const x = http.get(http.url`${baseUrl}/${rt}/${id}`, params);
       check(x, { [rt]: ({ status }) => status === 200 });
       check(x, { [rt]: () => x.json('id') === id });
     })
