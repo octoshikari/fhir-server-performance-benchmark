@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
-import { instantQuery, rangeQuery } from './metrics.js';
+import { instantQuery } from './metrics.js';
+import { renderReportToHtml } from './render.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -7,9 +8,8 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Generate output filename with timestamp
-const generateOutputFilename = () => {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    return join(__dirname, '..', 'reports', `query_results_${timestamp}.json`);
+const generateOutputFilename = (runid) => {
+    return join(__dirname, '..', 'reports', `query_results_${runid}.json`);
 };
 
 // Save data to JSON file
@@ -32,8 +32,7 @@ async function saveToJson(data, outputFile) {
 async function queryMetrics(query, startTime, endTime) {
     try {
         const metricsData = await instantQuery(query);
-        const outputFile = generateOutputFilename();
-        await saveToJson(metricsData, outputFile);
+        return metricsData;
     } catch (error) {
         console.error('Error:', error.message);
         process.exit(1);
@@ -42,8 +41,13 @@ async function queryMetrics(query, startTime, endTime) {
 
 function generateQueries(runid) {
     return {
-        average_rps: {
-            query: `sum by (fhirimpl, scenario) (avg_over_time(irate(k6_http_reqs_total{runid="${runid}"} [1m] )[24h])) `,
+        crud: {
+            average_rps: {
+                query: `sum by (fhirimpl, scenario) (avg_over_time(irate(k6_http_reqs_total{runid="${runid}", scenario="crud"} [1m] )[24h])) `,
+            },
+            average_crud_p99: {
+                query: `sum by (fhirimpl, method, name) (avg_over_time(k6_http_req_duration_p99{runid="${runid}", scenario="crud"}[24h]))`,
+            }
         }
     };
 }
@@ -52,7 +56,17 @@ async function main(runid) {
     const endTime = new Date();
     const startTime = new Date(endTime.getTime() - (24 * 60 * 60 * 1000)); // 24 hours ago
     const queries = generateQueries(runid);
-    await queryMetrics(queries.average_rps.query, startTime, endTime); 
+    let reportData = {};
+    for (const [scenario, metrics] of Object.entries(queries)) {
+        reportData[scenario] = {};
+        for (const [metric, query] of Object.entries(metrics)) {
+            reportData[scenario][metric] = await queryMetrics(query.query, startTime, endTime);
+        }
+    }
+
+    const outputFile = generateOutputFilename(runid);
+    await saveToJson(reportData, outputFile);
+    renderReportToHtml(outputFile);
 }
 
 
