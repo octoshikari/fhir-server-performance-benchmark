@@ -155,8 +155,9 @@ services:
     entrypoint: /bin/sh
     environment:
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
-      K6_PROMETHEUS_RW_STALE_MARKERS: true
-      K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: true
+      K6_PROMETHEUS_RW_TREND_STATS: p(95),p(99),min,max
+      #K6_PROMETHEUS_RW_STALE_MARKERS: true
+      #K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: true
     networks:
       - global
     profiles:
