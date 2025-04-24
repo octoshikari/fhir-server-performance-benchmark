@@ -1,17 +1,20 @@
 #!/bin/sh
 
-set -e
+set -ex
 
 IDTAG=fhirimpl
 PAUSE=30
 RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-RUN_ARGS="--tag runid=${RUNID}"
+RUN_ARGS="--no-usage-report --tag runid=${RUNID}"
 
 function pause() {
   sleep $PAUSE
 }
 
 function run() {
+  if [ "${CI}" != "" ]; then
+    RUN_ARGS="${RUN_ARGS} --quiet"
+  fi
   eval k6 run ${RUN_ARGS} "$@"
 }
 
@@ -42,14 +45,20 @@ runHapi    prewarm.js
 
 RUN_ARGS="${RUN_ARGS} -o experimental-prometheus-rw"
 
-runMedplum create.js
+# runMedplum create.js
+# pause
+# runAidbox  create.js
+# pause
+# runHapi    create.js
+# pause
+# runMedplum read.js
+# pause
+# runAidbox  read.js
+# pause
+# runHapi    read.js
+
+runMedplum crud.js
 pause
-runAidbox  create.js
+runAidbox  crud.js
 pause
-runHapi    create.js
-pause
-runMedplum read.js
-pause
-runAidbox  read.js
-pause
-runHapi    read.js
+runHapi    crud.js
