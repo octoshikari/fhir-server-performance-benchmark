@@ -318,6 +318,154 @@ services:
     networks:
       - global
 
+  medplum4:
+    container_name: perf-medplum4
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 4G
+    depends_on:
+      medplum-checker0:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./medplum:/srv
+
+  medplum-checker4:
+    container_name: perf-medplum-check4
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      medplum4:
+        condition: service_started
+    entrypoint: /bin/sh
+    healthcheck:
+      test: curl -f http://medplum4:8103/healthcheck
+      interval: 10s
+      start_period: 30s
+      retries: 10
+    networks:
+      - global
+
+  medplum5:
+    container_name: perf-medplum5
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 4G
+    depends_on:
+      medplum-checker0:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./medplum:/srv
+
+  medplum-checker5:
+    container_name: perf-medplum-check5
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      medplum5:
+        condition: service_started
+    entrypoint: /bin/sh
+    healthcheck:
+      test: curl -f http://medplum5:8103/healthcheck
+      interval: 10s
+      start_period: 30s
+      retries: 10
+    networks:
+      - global
+
+  medplum6:
+    container_name: perf-medplum6
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 4G
+    depends_on:
+      medplum-checker0:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./medplum:/srv
+
+  medplum-checker6:
+    container_name: perf-medplum-check6
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      medplum6:
+        condition: service_started
+    entrypoint: /bin/sh
+    healthcheck:
+      test: curl -f http://medplum6:8103/healthcheck
+      interval: 10s
+      start_period: 30s
+      retries: 10
+    networks:
+      - global
+
+  medplum7:
+    container_name: perf-medplum7
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 4G
+    depends_on:
+      medplum-checker0:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./medplum:/srv
+
+  medplum-checker7:
+    container_name: perf-medplum-check7
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      medplum7:
+        condition: service_started
+    entrypoint: /bin/sh
+    healthcheck:
+      test: curl -f http://medplum7:8103/healthcheck
+      interval: 10s
+      start_period: 30s
+      retries: 10
+    networks:
+      - global
+
   postgres:
     container_name: perf-postgres
     image: postgres:17
