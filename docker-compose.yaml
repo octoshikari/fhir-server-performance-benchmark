@@ -121,22 +121,6 @@ services:
     networks:
       - global
 
-  readiness:
-    container_name: perf-readiness
-    image: bash
-    command:
-      - -c
-      - echo -e "\n\nAll services are up and running\n\n"
-    depends_on:
-      aidbox:
-        condition: service_healthy
-      hapi-checker:
-        condition: service_healthy
-      medplum-checker:
-        condition: service_healthy
-      prometheus:
-        condition: service_healthy
-
   k6:
     container_name: perf-k6
     image: grafana/k6
@@ -148,7 +132,7 @@ services:
         condition: service_healthy
       hapi-checker:
         condition: service_healthy
-      medplum-checker:
+      medplum-checker0:
         condition: service_healthy
       prometheus:
         condition: service_healthy
@@ -168,7 +152,27 @@ services:
     working_dir: /test
 
   medplum:
-    container_name: perf-medplum
+    container_name: perf-medplum-proxy
+    image: haproxy:3.0
+    depends_on:
+      medplum0:
+        condition: service_started
+      medplum1:
+        condition: service_started
+      medplum2:
+        condition: service_started
+      medplum3:
+        condition: service_started
+    networks:
+      - global
+    ports:
+      - "8101:8101"
+      - "8103:8103"
+    volumes:
+      - ./haproxy:/usr/local/etc/haproxy:ro
+
+  medplum0:
+    container_name: perf-medplum0
     image: medplum/medplum-server
     pull_policy: always
     command:
@@ -183,22 +187,130 @@ services:
         condition: service_healthy
     networks:
       - global
-    ports:
-      - "5000:5000"
-      - "8103:8103"
     volumes:
       - ./medplum:/srv
 
-  medplum-checker:
-    container_name: perf-medplum-check
+  medplum-checker0:
+    container_name: perf-medplum-check0
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
-      medplum:
+      medplum0:
         condition: service_started
     entrypoint: /bin/sh
     healthcheck:
-      test: curl -f http://medplum:8103/healthcheck
+      test: curl -f http://medplum0:8103/healthcheck
+      interval: 10s
+      start_period: 30s
+      retries: 10
+    networks:
+      - global
+
+  medplum1:
+    container_name: perf-medplum1
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 4G
+    depends_on:
+      medplum-checker0:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./medplum:/srv
+
+  medplum-checker1:
+    container_name: perf-medplum-check1
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      medplum1:
+        condition: service_started
+    entrypoint: /bin/sh
+    healthcheck:
+      test: curl -f http://medplum1:8103/healthcheck
+      interval: 10s
+      start_period: 30s
+      retries: 10
+    networks:
+      - global
+
+  medplum2:
+    container_name: perf-medplum2
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 4G
+    depends_on:
+      medplum-checker0:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./medplum:/srv
+
+  medplum-checker2:
+    container_name: perf-medplum-check2
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      medplum2:
+        condition: service_started
+    entrypoint: /bin/sh
+    healthcheck:
+      test: curl -f http://medplum2:8103/healthcheck
+      interval: 10s
+      start_period: 30s
+      retries: 10
+    networks:
+      - global
+
+  medplum3:
+    container_name: perf-medplum3
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 4G
+    depends_on:
+      medplum-checker0:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./medplum:/srv
+
+  medplum-checker3:
+    container_name: perf-medplum-check3
+    image: curlimages/curl
+    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    depends_on:
+      medplum3:
+        condition: service_started
+    entrypoint: /bin/sh
+    healthcheck:
+      test: curl -f http://medplum3:8103/healthcheck
       interval: 10s
       start_period: 30s
       retries: 10
@@ -256,6 +368,24 @@ services:
       - global
     volumes:
       - ./prometheus/config.yaml:/etc/prometheus/prometheus.yml
+
+  readiness:
+    container_name: perf-readiness
+    image: bash
+    command:
+      - -c
+      - echo -e "\n\nAll services are up and running\n\n"
+    depends_on:
+      aidbox:
+        condition: service_healthy
+      hapi-checker:
+        condition: service_healthy
+      medplum-checker0:
+        condition: service_healthy
+      medplum-checker1:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
 
   redis:
     container_name: perf-redis

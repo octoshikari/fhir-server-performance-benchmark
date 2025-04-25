@@ -22,8 +22,8 @@ export const options = {
       executor: 'per-vu-iterations',
       vus: 100,
       iterations: 1000,
-      maxDuration: '45s',
-      gracefulStop: '5s',
+      maxDuration: '1m',
+      gracefulStop: '30s',
     },
   },
 };
