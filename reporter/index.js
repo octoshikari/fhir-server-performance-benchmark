@@ -52,7 +52,7 @@ function generateQueries(runid) {
     };
 }
 
-async function main(runid) { 
+async function doReport(runid) { 
     const endTime = new Date();
     const startTime = new Date(endTime.getTime() - (24 * 60 * 60 * 1000)); // 24 hours ago
     const queries = generateQueries(runid);
@@ -69,8 +69,21 @@ async function main(runid) {
     renderReportToHtml(outputFile);
 }
 
+// Get runid from command line arguments
+async function main() {
+    const args = process.argv.slice(2);
+    if (args.length !== 1) {
+        console.error('Usage: node reporter/index.js <runid>');
+        console.error('Example: node reporter/index.js 2025-04-24T12:29:33Z');
+        process.exit(1);
+    }
 
+    const runid = args[0];
+    await doReport(runid);
+}
 
-const runid = '2025-04-24T12:29:33Z';
-
-main(runid); 
+// Run the main function
+main().catch(error => {
+    console.error('Unhandled error:', error);
+    process.exit(1);
+}); 

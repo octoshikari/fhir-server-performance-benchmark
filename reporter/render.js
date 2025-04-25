@@ -305,7 +305,7 @@ async function renderReportToHtml(jsonFilePath) {
                             </td>
                         </tr>
                         <tr>
-                            <td class="metric-col pl-8 px-6 py-4 text-sm text-gray-500">
+                            <td class="metric-col pl-6 px-6 py-4 text-sm text-gray-500">
                                 Total RPS
                             </td>
                             ${fhirimpls.map(impl => {
@@ -335,7 +335,7 @@ async function renderReportToHtml(jsonFilePath) {
 
                             return `
                             <tr id="row-${method}" class="method-row hover:bg-gray-50" onclick="toggleMethod('${method}', event)">
-                                <td class="metric-col pl-8 px-6 py-3 text-sm font-medium text-gray-900 flex items-center">
+                                <td class="metric-col pl-6 px-6 py-3 text-sm font-medium text-gray-900 flex items-center">
                                     <span id="icon-${method}" class="toggle-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
