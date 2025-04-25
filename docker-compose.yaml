@@ -138,6 +138,7 @@ services:
         condition: service_healthy
     entrypoint: /bin/sh
     environment:
+      CI: "${CI}"
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
       K6_PROMETHEUS_RW_TREND_STATS: p(95),p(99),min,max
       #K6_PROMETHEUS_RW_STALE_MARKERS: true
