@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 IDTAG=fhirimpl
 PAUSE=30

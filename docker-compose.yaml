@@ -49,7 +49,7 @@ services:
     networks:
       - global
     ports:
-      - 8080:8080
+      - "8080:8080"
 
   cadvisor:
     container_name: perf-cadvisor
@@ -141,8 +141,6 @@ services:
       CI: "${CI}"
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
       K6_PROMETHEUS_RW_TREND_STATS: p(95),p(99),min,max
-      #K6_PROMETHEUS_RW_STALE_MARKERS: true
-      #K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: true
     networks:
       - global
     profiles:
