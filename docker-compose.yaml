@@ -4,6 +4,8 @@ networks:
 
 volumes:
   pgdata:
+  promdata:
+  redisdata:
 
 services:
   aidbox:
@@ -514,6 +516,7 @@ services:
     networks:
       - global
     volumes:
+      - promdata:/prometheus
       - ./prometheus/config.yaml:/etc/prometheus/prometheus.yml
 
   readiness:
@@ -539,3 +542,5 @@ services:
     image: redis
     networks:
       - global
+    volumes:
+      - redisdata:/data
