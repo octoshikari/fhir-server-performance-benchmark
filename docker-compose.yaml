@@ -126,9 +126,6 @@ services:
   k6:
     container_name: perf-k6
     image: grafana/k6
-    command:
-      - -c
-      - /run.sh
     depends_on:
       aidbox:
         condition: service_healthy
@@ -138,7 +135,7 @@ services:
         condition: service_healthy
       prometheus:
         condition: service_healthy
-    entrypoint: /bin/sh
+    entrypoint: /run.sh
     environment:
       CI: "${CI}"
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write

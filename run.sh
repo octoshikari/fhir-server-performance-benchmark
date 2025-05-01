@@ -2,9 +2,14 @@
 
 set -e
 
+# take RUNID from argument or environment, the default value is current time UTC
+RUNID=${RUNID:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+if [[ $# -eq 1 ]]; then
+  RUNID=$1
+fi
+
 IDTAG=fhirimpl
 PAUSE=30
-RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 RUN_ARGS="--no-usage-report --tag runid=${RUNID}"
 
 function pause() {
