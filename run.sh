@@ -2,6 +2,8 @@
 
 set -e
 
+now=$(date +%s)
+
 # take RUNID from argument or environment, the default value is current time UTC
 RUNID=${RUNID:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
 if [[ $# -eq 1 ]]; then
@@ -9,6 +11,7 @@ if [[ $# -eq 1 ]]; then
 fi
 
 IDTAG=fhirimpl
+OUTDIR=${OUTDIR:-/tmp}
 PAUSE=30
 RUN_ARGS="--no-usage-report --tag runid=${RUNID}"
 
@@ -71,3 +74,11 @@ longerPause
 runAidbox  import.js
 longerPause
 runHapi    import.js
+
+cat << EOF > ${OUTDIR}/last-run.json
+{
+  "start": ${now},
+  "end": $(date +%s),
+  "runid": "${RUNID}"
+}
+EOF

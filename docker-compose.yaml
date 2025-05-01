@@ -184,6 +184,7 @@ services:
       CI: "${CI}"
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
       K6_PROMETHEUS_RW_TREND_STATS: p(95),p(99),min,max
+      OUTDIR: /output
     networks:
       - global
     profiles:
@@ -191,6 +192,7 @@ services:
     volumes:
       - ./run.sh:/run.sh:ro
       - ./test:/test
+      - ./output:/output
     working_dir: /test
 
   medplum:
@@ -618,6 +620,25 @@ services:
     volumes:
       - redisdata:/data
 
+  reporter:
+    container_name: perf-reporter
+    command:
+      - --bun
+      - /reporter/index.js
+    environment:
+      METRICS_URL: "http://prometheus:9090"
+      DASHBOARD_FILE: /dashboard.json
+    image: oven/bun:alpine
+    networks:
+      - global
+    profiles:
+      - donotstart
+    volumes:
+      - ./grafana/dashboards/perf.json:/dashboard.json:ro
+      - ./reporter:/reporter
+      - ./results:/results
+    working_dir: /results
+
   tgz:
     container_name: perf-tgz
     build:
@@ -631,3 +652,25 @@ services:
     volumes:
       - tgzdata:/data
     working_dir: /data
+
+  update-report:
+    container_name: perf-update-report
+    image: alpine:latest
+    command:
+      - -c
+      - |
+        apk add --no-cache git jq
+        git clone --single-branch --branch gh-pages git@github.com:HealthSamurai/fhir-server-performance-benchmark.git report
+        cp -av /results/reports report/reports
+        cp -av /results/snapshots report/snapshots
+        jq ". += [$(cat /results/last-run.json)]" report/runids.json > report/runids.json.tmp
+        mv report/runids.json.tmp report/runids.json
+        cd report
+        git add .
+        git commit -m "Update report"
+        git push origin gh-pages
+    profiles:
+      - donotstart
+    volumes:
+      - ./results:/srv/results
+    working_dir: /srv

@@ -23,7 +23,7 @@ export const options = {
       vus: 100,
       iterations: 100000,
       maxDuration: '5m',
-      gracefulStop: '30s',
+      gracefulStop: '0s',
     },
   },
 }

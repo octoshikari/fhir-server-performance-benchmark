@@ -14,6 +14,7 @@ export const options = {
       vus: 4,
       iterations: 1000,
       maxDuration: '5m',
+      gracefulStop: '0s',
     },
   },
 }

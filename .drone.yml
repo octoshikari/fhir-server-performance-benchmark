@@ -59,4 +59,6 @@ steps:
   - docker ps -a
   - docker compose run --name perf-k6 --rm k6
   - sleep 120 # wait for finish remote write
+  - docker compose run --name perf-reporter --rm reporter
+  - docker compose run --name perf-update-report --rm update-report
   - docker compose down -v
