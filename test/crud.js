@@ -195,7 +195,7 @@ export default function ({ baseUrl, params, seeds }) {
   })
 
   group('delete', () => {
-    Object.keys(resources).forEach(rt => {
+    Object.keys(resources).reverse().forEach(rt => {
       group(rt, () => {
         const x = http.del(
           http.url`${baseUrl}/${getRtId(resources, rt)}`,
