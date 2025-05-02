@@ -44,6 +44,7 @@ services:
       BOX_SETTINGS_MODE: read-write
       BOX_WEB_BASE_URL: http://localhost:8080
       BOX_WEB_PORT: 8080
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75 -XshowSettings:vm"
     healthcheck:
       test: curl -f http://localhost:8080/health
       interval: 30s
@@ -140,6 +141,7 @@ services:
         condition: service_healthy
     entrypoint: /run.sh
     environment:
+      BUNDLE_URL: http://tgz:8080
       CI: "${CI}"
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
       K6_PROMETHEUS_RW_TREND_STATS: p(95),p(99),min,max
@@ -163,6 +165,14 @@ services:
       medplum2:
         condition: service_started
       medplum3:
+        condition: service_started
+      medplum4:
+        condition: service_started
+      medplum5:
+        condition: service_started
+      medplum6:
+        condition: service_started
+      medplum7:
         condition: service_started
     networks:
       - global
@@ -534,7 +544,21 @@ services:
         condition: service_healthy
       medplum-checker1:
         condition: service_healthy
+      medplum-checker2:
+        condition: service_healthy
+      medplum-checker3:
+        condition: service_healthy
+      medplum-checker4:
+        condition: service_healthy
+      medplum-checker5:
+        condition: service_healthy
+      medplum-checker6:
+        condition: service_healthy
+      medplum-checker7:
+        condition: service_healthy
       prometheus:
+        condition: service_healthy
+      tgz:
         condition: service_healthy
 
   redis:
@@ -550,6 +574,8 @@ services:
       context: tgz
     command:
       - "https://storage.googleapis.com/aidbox-public/synthea/performance/bulk_1k.tar.gz"
+    networks:
+      - global
     ports:
       - "8081:8080"
     volumes:

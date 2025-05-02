@@ -22,6 +22,7 @@
   "allowedOrigins": "*",
   "introspectionEnabled": true,
   "defaultRateLimit": "1000000",
+  "defaultAuthRateLimit": "1000000",
   "database": {
     "host": "postgres",
     "port": 5432,

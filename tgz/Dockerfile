@@ -17,5 +17,5 @@ WORKDIR /data
 VOLUME /data
 ENTRYPOINT ["/srv/main"]
 HEALTHCHECK --interval=5s --timeout=1s --retries=100 --start-period=5s CMD [ \
-  "curl", "--fail", "http://127.0.0.1:8080/" \
+  "curl", "--fail", "http://127.0.0.1:8080/healthz" \
 ]
