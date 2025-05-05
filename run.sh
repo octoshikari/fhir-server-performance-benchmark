@@ -16,6 +16,10 @@ function pause() {
   sleep $PAUSE
 }
 
+function longerPause() {
+  sleep $(( PAUSE * 2 ))
+}
+
 function run() {
   if [ "${CI}" != "" ]; then
     RUN_ARGS="${RUN_ARGS} --quiet"
@@ -24,23 +28,23 @@ function run() {
 }
 
 function runAidbox() {
-  echo -e "\n\033[1mRunning: Aidbox\033[0m\n"
+  echo -e "\n\033[1mRunning: Aidbox $1\033[0m\n"
   AUTH_USER=root AUTH_PASSWORD=secret BASE_URL=http://aidbox:8080/fhir run --tag ${IDTAG}=aidbox $1
 }
 
 function runHapi() {
-  echo -e "\n\033[1mRunning: Hapi\033[0m\n"
-  BASE_URL=http://hapi:8080/fhir run --tag ${IDTAG}=hapi "$@"
+  echo -e "\n\033[1mRunning: Hapi $1\033[0m\n"
+  BASE_URL=http://hapi:8080/fhir run --tag ${IDTAG}=hapi $1
 }
 
 function runMedplum() {
-  echo -e "\n\033[1mRunning: Medplum\033[0m\n"
+  echo -e "\n\033[1mRunning: Medplum $1\033[0m\n"
   BASE_URL=http://medplum:8103/fhir/R4 \
   AUTH_USER=admin@example.com \
   AUTH_PASSWORD=medplum_admin \
   OAUTH2_LOGIN_URL=http://medplum:8103/auth/login \
   OAUTH2_TOKEN_URL=http://medplum:8103/oauth2/token \
-    run --tag ${IDTAG}=medplum "$@"
+    run --tag ${IDTAG}=medplum $1
 }
 
 
@@ -63,7 +67,7 @@ runHapi    crud.js
 pause
 
 runMedplum import.js
-pause
+longerPause
 runAidbox  import.js
-pause
+longerPause
 runHapi    import.js

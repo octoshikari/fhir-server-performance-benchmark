@@ -36,10 +36,10 @@ export default function ({ baseUrl, bundleUrl, params, }) {
   const bundle = http.get(
     bundleUrl,
     { tags: { group: '::source' } })
-  bundleSize.add(bundle.json().entry.length)
   const x = http.post(
     baseUrl,
     bundle.body,
-    { ...params, responseType: 'none', tags: { group: '::import' } })
-  check(x, { ['Bundle import']: ({ status }) => status === 200 })
+    { ...params, tags: { group: '::import' } })
+  if (!check(x, { ['Bundle import']: ({ status }) => status === 200 })) return
+  bundleSize.add(x.json().entry.length)
 }
