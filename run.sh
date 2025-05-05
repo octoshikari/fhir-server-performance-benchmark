@@ -25,7 +25,7 @@ function run() {
 
 function runAidbox() {
   echo -e "\n\033[1mRunning: Aidbox\033[0m\n"
-  AUTH_USER=root AUTH_PASSWORD=secret BASE_URL=http://aidbox:8080$2 run --tag ${IDTAG}=aidbox $1
+  AUTH_USER=root AUTH_PASSWORD=secret BASE_URL=http://aidbox:8080/fhir run --tag ${IDTAG}=aidbox $1
 }
 
 function runHapi() {
@@ -49,7 +49,7 @@ runAidbox  prewarm.js
 runHapi    prewarm.js
 
 runMedplum import-seed.js
-runAidbox  import-seed.js /fhir
+runAidbox  import-seed.js 
 runHapi    import-seed.js
 
 RUN_ARGS="${RUN_ARGS} -o experimental-prometheus-rw"
@@ -64,6 +64,6 @@ pause
 
 runMedplum import.js
 pause
-runAidbox  import.js /fhir
+runAidbox  import.js
 pause
 runHapi    import.js
