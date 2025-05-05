@@ -49,7 +49,7 @@ runAidbox  prewarm.js
 runHapi    prewarm.js
 
 runMedplum import-seed.js
-runAidbox  import-seed.js 
+runAidbox  import-seed.js
 runHapi    import-seed.js
 
 RUN_ARGS="${RUN_ARGS} -o experimental-prometheus-rw"

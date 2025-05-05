@@ -55,6 +55,37 @@ services:
     ports:
       - "8080:8080"
 
+  aidbox-indexer:
+    container_name: perf-aidbox-indexer
+    depends_on:
+      aidbox:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    image: postgres:17
+    command:
+      - bash
+      - -c
+      - |
+        psql -v ON_ERROR_STOP=1 <<-EOF
+          CREATE INDEX IF NOT EXISTS claim_resource_idx ON Claim USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS encounter_resource_idx ON Encounter USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS explanation_of_benefit_resource_idx ON ExplanationOfBenefit USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS location_resource_idx ON Location USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS medication_request_resource_idx ON MedicationRequest USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS observation_resource_idx ON Observation USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS organization_resource_idx ON Organization USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS patient_resource_idx ON Patient USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS practitioner_resource_idx ON Practitioner USING GIN (resource);
+        EOF
+    environment:
+      PGDATABASE: aidbox
+      PGHOST: postgres
+      PGPASSWORD: postgres
+      PGUSER: postgres
+    networks:
+      - global
+
   cadvisor:
     container_name: perf-cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
