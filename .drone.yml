@@ -55,7 +55,7 @@ steps:
     path: /var/run
   commands:
   - sleep 10 # give docker enough time to start
-  - docker compose up -d
+  - docker compose up --build -d
   - docker ps -a
   - docker compose run --name perf-k6 --rm k6
   - sleep 120 # wait for finish remote write

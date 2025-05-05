@@ -1,10 +1,10 @@
-import exec from 'k6/execution'
 import http from 'k6/http'
-import { check, group } from 'k6'
-import { randomItem } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js'
+import { check } from 'k6'
+import { Counter } from 'k6/metrics'
 
 import authenticate from './lib/auth.js'
-import jsonPatch from './lib/json.js'
+
+const bundleSize = new Counter('bundle_size')
 
 export const options = {
   discardResponseBodies: false,
@@ -36,8 +36,9 @@ export default function ({ baseUrl, bundleUrl, params, }) {
   const bundle = http.get(
     bundleUrl,
     { tags: { group: '::source' } })
+  bundleSize.add(bundle.json().entry.length)
   const x = http.post(
-    `${baseUrl}`,
+    baseUrl,
     bundle.body,
     { ...params, responseType: 'none', tags: { group: '::import' } })
   check(x, { ['Bundle import']: ({ status }) => status === 200 })
