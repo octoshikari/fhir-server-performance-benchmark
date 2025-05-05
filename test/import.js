@@ -11,7 +11,7 @@ export const options = {
   scenarios: {
     import: {
       executor: 'shared-iterations',
-      vus: 10,
+      vus: 8,
       iterations: 1000,
       maxDuration: '5m',
     },
