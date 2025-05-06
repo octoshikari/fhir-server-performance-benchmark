@@ -123,6 +123,14 @@ services:
   hapi:
     container_name: perf-hapi
     image: hapiproject/hapi:latest
+    entrypoint:
+      - java
+      - -XX:MaxRAMPercentage=75
+      - -XshowSettings:vm
+      - --class-path
+      - /app/main.war
+      - -Dloader.path=main.war!/WEB-INF/classes/,main.war!/WEB-INF/,/app/extra-classes
+      - org.springframework.boot.loader.PropertiesLauncher
     pull_policy: always
     depends_on:
       postgres:
