@@ -20,7 +20,7 @@ services:
       resources:
         limits:
           cpus: '8'
-          memory: 4G
+          memory: 6G
     environment:
       BOX_ADMIN_PASSWORD: secret
       BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
@@ -53,10 +53,10 @@ services:
     networks:
       - global
     ports:
-      - "8080:8080"
+      - "13080:8080"
 
   aidbox-indexer:
-    container_name: perf-aidbox-indexer
+    container_name: perf-aidbox-idx
     depends_on:
       aidbox:
         condition: service_healthy
@@ -116,7 +116,7 @@ services:
     networks:
       - global
     ports:
-      - "3000:3000"
+      - "13000:3000"
     volumes:
       - ./grafana:/etc/grafana/provisioning:ro
 
@@ -139,17 +139,17 @@ services:
       resources:
         limits:
           cpus: '8'
-          memory: 4G
+          memory: 6G
     networks:
       - global
     ports:
-      - "8090:8080"
+      - "13090:8080"
     volumes:
       - ./hapi/application.yaml:/app/config/application.yaml:ro
       - ./curl:/mnt:ro
 
   hapi-checker:
-    container_name: perf-hapi-check
+    container_name: perf-hapi-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -194,7 +194,7 @@ services:
     working_dir: /test
 
   medplum:
-    container_name: perf-medplum-proxy
+    container_name: perf-medplum-ha
     image: haproxy:3.0
     depends_on:
       medplum0:
@@ -216,8 +216,8 @@ services:
     networks:
       - global
     ports:
-      - "8101:8101"
-      - "8103:8103"
+      - "13101:8101"
+      - "13103:8103"
     volumes:
       - ./haproxy:/usr/local/etc/haproxy:ro
 
@@ -235,13 +235,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - global
     volumes:
       - ./medplum:/srv
 
   medplum-checker0:
-    container_name: perf-medplum-check0
+    container_name: perf-medplum0-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -272,13 +274,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - global
     volumes:
       - ./medplum:/srv
 
   medplum-checker1:
-    container_name: perf-medplum-check1
+    container_name: perf-medplum1-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -309,13 +313,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - global
     volumes:
       - ./medplum:/srv
 
   medplum-checker2:
-    container_name: perf-medplum-check2
+    container_name: perf-medplum2-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -346,13 +352,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - global
     volumes:
       - ./medplum:/srv
 
   medplum-checker3:
-    container_name: perf-medplum-check3
+    container_name: perf-medplum3-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -383,13 +391,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - global
     volumes:
       - ./medplum:/srv
 
   medplum-checker4:
-    container_name: perf-medplum-check4
+    container_name: perf-medplum4-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -420,13 +430,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - global
     volumes:
       - ./medplum:/srv
 
   medplum-checker5:
-    container_name: perf-medplum-check5
+    container_name: perf-medplum5-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -457,13 +469,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - global
     volumes:
       - ./medplum:/srv
 
   medplum-checker6:
-    container_name: perf-medplum-check6
+    container_name: perf-medplum6-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -494,13 +508,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - global
     volumes:
       - ./medplum:/srv
 
   medplum-checker7:
-    container_name: perf-medplum-check7
+    container_name: perf-medplum7-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
@@ -538,16 +554,6 @@ services:
       - ./postgres/init:/docker-entrypoint-initdb.d
       - ./postgres/postgres.conf:/postgres.conf
 
-  postgres-exporter:
-    container_name: perf-postgres-exporter
-    image: quay.io/prometheuscommunity/postgres-exporter
-    environment:
-      DATA_SOURCE_URI: postgres:5432/postgres?sslmode=disable
-      DATA_SOURCE_USER: postgres
-      DATA_SOURCE_PASS: postgres
-    networks:
-      - global
-
   prometheus:
     container_name: perf-prometheus
     image: prom/prometheus
@@ -556,8 +562,6 @@ services:
       - --enable-feature=native-histograms
       - --storage.tsdb.path=/prometheus
       - --web.enable-remote-write-receiver
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     healthcheck:
       test: wget -O - http://localhost:9090/-/ready
       interval: 5s
@@ -602,13 +606,20 @@ services:
 
   redis:
     container_name: perf-redis
-    image: redis
+    image: redis:latest
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      start_period: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - global
     volumes:
       - redisdata:/data
 
   tgz:
+    container_name: perf-tgz
     build:
       context: tgz
     command:
@@ -616,7 +627,7 @@ services:
     networks:
       - global
     ports:
-      - "8081:8080"
+      - "13081:8080"
     volumes:
       - tgzdata:/data
     working_dir: /data
