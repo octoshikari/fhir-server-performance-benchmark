@@ -656,18 +656,29 @@ services:
   update-report:
     container_name: perf-update-report
     image: alpine:latest
+    environment:
+      SSH_KEY: "${SSH_KEY}"
     command:
-      - -c
+      - /bin/sh
+      - -ec
       - |
-        apk add --no-cache git jq
+        apk add --no-cache curl git jq openssh-client
+        mkdir ~/.ssh
+        echo $SSH_KEY | sed 's/\^/\'$'\n''/g' > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        curl --silent https://api.github.com/meta  | jq --raw-output '"github.com "+.ssh_keys[]' >> ~/.ssh/known_hosts
         git clone --single-branch --branch gh-pages git@github.com:HealthSamurai/fhir-server-performance-benchmark.git report
-        cp -av /results/reports report/reports
-        cp -av /results/snapshots report/snapshots
-        jq ". += [$(cat /results/last-run.json)]" report/runids.json > report/runids.json.tmp
+        git config --global --add safe.directory /srv/report
+        git config --global user.email "ci@health-samurai.io"
+        git config --global user.name "CI"
+        cp -v results/reports/* report/reports/
+        cp -v results/snapshots/* report/snapshots/
+        jq ". += [$(cat results/last-run.json)]" report/runids.json > report/runids.json.tmp
         mv report/runids.json.tmp report/runids.json
+        RUN_ID=$(jq -r '.runid' results/last-run.json)
         cd report
         git add .
-        git commit -m "Update report"
+        git commit -m "Add run ${RUN_ID}"
         git push origin gh-pages
     profiles:
       - donotstart

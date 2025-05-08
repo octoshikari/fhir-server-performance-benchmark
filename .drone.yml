@@ -54,6 +54,7 @@ steps:
   - name: dockersock
     path: /var/run
   commands:
+  - chmod 777 /results # make sure we have write permissions
   - sleep 10 # give docker enough time to start
   - docker compose up --build -d
   - docker ps -a
