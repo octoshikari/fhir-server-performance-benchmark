@@ -184,7 +184,7 @@ services:
       CI: "${CI}"
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
       K6_PROMETHEUS_RW_TREND_STATS: p(95),p(99),min,max
-      OUTDIR: /output
+      OUTDIR: /results
     networks:
       - global
     profiles:
@@ -192,7 +192,7 @@ services:
     volumes:
       - ./run.sh:/run.sh:ro
       - ./test:/test
-      - ./output:/output
+      - ./results:/results
     working_dir: /test
 
   medplum:
