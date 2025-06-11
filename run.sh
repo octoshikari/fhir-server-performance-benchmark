@@ -15,6 +15,13 @@ OUTDIR=${OUTDIR:-/tmp}
 PAUSE=30
 RUN_ARGS="--no-usage-report --tag runid=${RUNID}"
 
+if [ -d /auth ]; then
+  AUTH_DIR=/auth
+else
+  AUTH_DIR=$(mktemp -d auth-XXXXXX)
+  trap "rm -rf ${AUTH_DIR}" EXIT
+fi
+
 function pause() {
   sleep $PAUSE
 }
@@ -24,20 +31,27 @@ function longerPause() {
 }
 
 function run() {
+  id=$1
+  shift
   if [ "${CI}" != "" ]; then
     RUN_ARGS="${RUN_ARGS} --quiet"
   fi
-  eval k6 run ${RUN_ARGS} "$@"
+  file=${AUTH_DIR}/${id}.json
+  if [ ! -f ${file} ]; then
+    eval k6 run auth.js --log-format raw 2> ${file}
+    export AUTH_FILE=${file}
+  fi
+  eval k6 run ${RUN_ARGS} --tag ${IDTAG}=${id} "$@"
 }
 
 function runAidbox() {
   echo -e "\n\033[1mRunning: Aidbox $1\033[0m\n"
-  AUTH_USER=root AUTH_PASSWORD=secret BASE_URL=http://aidbox:8080/fhir run --tag ${IDTAG}=aidbox $1
+  AUTH_USER=root AUTH_PASSWORD=secret BASE_URL=http://aidbox:8080/fhir run aidbox $1
 }
 
 function runHapi() {
   echo -e "\n\033[1mRunning: Hapi $1\033[0m\n"
-  BASE_URL=http://hapi:8080/fhir run --tag ${IDTAG}=hapi $1
+  BASE_URL=http://hapi:8080/fhir run hapi $1
 }
 
 function runMedplum() {
@@ -47,7 +61,7 @@ function runMedplum() {
   AUTH_PASSWORD=medplum_admin \
   OAUTH2_LOGIN_URL=http://medplum:8103/auth/login \
   OAUTH2_TOKEN_URL=http://medplum:8103/oauth2/token \
-    run --tag ${IDTAG}=medplum $1
+    run medplum $1
 }
 
 

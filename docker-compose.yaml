@@ -193,6 +193,8 @@ services:
       - global
     profiles:
       - donotstart
+    tmpfs:
+      - /auth
     volumes:
       - ./run.sh:/run.sh:ro
       - ./test:/test
