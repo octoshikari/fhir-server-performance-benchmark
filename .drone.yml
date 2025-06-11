@@ -61,6 +61,7 @@ steps:
   - sleep 10 # give docker enough time to start
   - docker compose up --build -d
   - docker ps -a
+  - sleep 10 # give docker compose services enough time to start
   - docker compose run --name perf-k6 --rm k6
   - sleep 120 # wait for finish remote write
   - docker compose run --name perf-reporter --rm reporter

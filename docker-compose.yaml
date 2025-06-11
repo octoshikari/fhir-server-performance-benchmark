@@ -1,3 +1,5 @@
+name: perf
+
 networks:
   global:
     driver: bridge
@@ -68,15 +70,15 @@ services:
       - -c
       - |
         psql -v ON_ERROR_STOP=1 <<-EOF
-          CREATE INDEX IF NOT EXISTS claim_resource_idx ON Claim USING GIN (resource);
-          CREATE INDEX IF NOT EXISTS encounter_resource_idx ON Encounter USING GIN (resource);
-          CREATE INDEX IF NOT EXISTS explanation_of_benefit_resource_idx ON ExplanationOfBenefit USING GIN (resource);
-          CREATE INDEX IF NOT EXISTS location_resource_idx ON Location USING GIN (resource);
-          CREATE INDEX IF NOT EXISTS medication_request_resource_idx ON MedicationRequest USING GIN (resource);
-          CREATE INDEX IF NOT EXISTS observation_resource_idx ON Observation USING GIN (resource);
-          CREATE INDEX IF NOT EXISTS organization_resource_idx ON Organization USING GIN (resource);
-          CREATE INDEX IF NOT EXISTS patient_resource_idx ON Patient USING GIN (resource);
-          CREATE INDEX IF NOT EXISTS practitioner_resource_idx ON Practitioner USING GIN (resource);
+          CREATE INDEX IF NOT EXISTS claim_resource_idx ON Claim USING GIN (resource jsonb_path_ops);
+          CREATE INDEX IF NOT EXISTS encounter_resource_idx ON Encounter USING GIN (resource jsonb_path_ops);
+          CREATE INDEX IF NOT EXISTS explanation_of_benefit_resource_idx ON ExplanationOfBenefit USING GIN (resource jsonb_path_ops);
+          CREATE INDEX IF NOT EXISTS location_resource_idx ON Location USING GIN (resource jsonb_path_ops);
+          CREATE INDEX IF NOT EXISTS medication_request_resource_idx ON MedicationRequest USING GIN (resource jsonb_path_ops);
+          CREATE INDEX IF NOT EXISTS observation_resource_idx ON Observation USING GIN (resource jsonb_path_ops);
+          CREATE INDEX IF NOT EXISTS organization_resource_idx ON Organization USING GIN (resource jsonb_path_ops);
+          CREATE INDEX IF NOT EXISTS patient_resource_idx ON Patient USING GIN (resource jsonb_path_ops);
+          CREATE INDEX IF NOT EXISTS practitioner_resource_idx ON Practitioner USING GIN (resource jsonb_path_ops);
         EOF
     environment:
       PGDATABASE: aidbox
@@ -85,6 +87,8 @@ services:
       PGUSER: postgres
     networks:
       - global
+    volumes:
+      - pgdata:/var/lib/postgresql/data:delegated
 
   cadvisor:
     container_name: perf-cadvisor
@@ -172,7 +176,7 @@ services:
         condition: service_healthy
       hapi-checker:
         condition: service_healthy
-      medplum-checker0:
+      medplum-checker:
         condition: service_healthy
       prometheus:
         condition: service_healthy
@@ -196,44 +200,19 @@ services:
     working_dir: /test
 
   medplum:
-    container_name: perf-medplum-ha
-    image: haproxy:3.0
-    depends_on:
-      medplum0:
-        condition: service_started
-      medplum1:
-        condition: service_started
-      medplum2:
-        condition: service_started
-      medplum3:
-        condition: service_started
-      medplum4:
-        condition: service_started
-      medplum5:
-        condition: service_started
-      medplum6:
-        condition: service_started
-      medplum7:
-        condition: service_started
-    networks:
-      - global
-    ports:
-      - "13101:8101"
-      - "13103:8103"
-    volumes:
-      - ./haproxy:/usr/local/etc/haproxy:ro
-
-  medplum0:
-    container_name: perf-medplum0
     image: medplum/medplum-server
     pull_policy: always
     command:
       - file:/srv/config.json
     deploy:
+      replicas: 8
       resources:
         limits:
-          cpus: '8'
-          memory: 4G
+          cpus: 1
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 10s
     depends_on:
       postgres:
         condition: service_healthy
@@ -244,289 +223,16 @@ services:
     volumes:
       - ./medplum:/srv
 
-  medplum-checker0:
-    container_name: perf-medplum0-hc
+  medplum-checker:
+    container_name: perf-medplum-hc
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
-      medplum0:
+      medplum:
         condition: service_started
     entrypoint: /bin/sh
     healthcheck:
-      test: curl -f http://medplum0:8103/healthcheck
-      interval: 10s
-      start_period: 30s
-      retries: 10
-    networks:
-      - global
-
-  medplum1:
-    container_name: perf-medplum1
-    image: medplum/medplum-server
-    pull_policy: always
-    command:
-      - file:/srv/config.json
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 4G
-    depends_on:
-      medplum-checker0:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - global
-    volumes:
-      - ./medplum:/srv
-
-  medplum-checker1:
-    container_name: perf-medplum1-hc
-    image: curlimages/curl
-    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
-    depends_on:
-      medplum1:
-        condition: service_started
-    entrypoint: /bin/sh
-    healthcheck:
-      test: curl -f http://medplum1:8103/healthcheck
-      interval: 10s
-      start_period: 30s
-      retries: 10
-    networks:
-      - global
-
-  medplum2:
-    container_name: perf-medplum2
-    image: medplum/medplum-server
-    pull_policy: always
-    command:
-      - file:/srv/config.json
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 4G
-    depends_on:
-      medplum-checker0:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - global
-    volumes:
-      - ./medplum:/srv
-
-  medplum-checker2:
-    container_name: perf-medplum2-hc
-    image: curlimages/curl
-    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
-    depends_on:
-      medplum2:
-        condition: service_started
-    entrypoint: /bin/sh
-    healthcheck:
-      test: curl -f http://medplum2:8103/healthcheck
-      interval: 10s
-      start_period: 30s
-      retries: 10
-    networks:
-      - global
-
-  medplum3:
-    container_name: perf-medplum3
-    image: medplum/medplum-server
-    pull_policy: always
-    command:
-      - file:/srv/config.json
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 4G
-    depends_on:
-      medplum-checker0:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - global
-    volumes:
-      - ./medplum:/srv
-
-  medplum-checker3:
-    container_name: perf-medplum3-hc
-    image: curlimages/curl
-    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
-    depends_on:
-      medplum3:
-        condition: service_started
-    entrypoint: /bin/sh
-    healthcheck:
-      test: curl -f http://medplum3:8103/healthcheck
-      interval: 10s
-      start_period: 30s
-      retries: 10
-    networks:
-      - global
-
-  medplum4:
-    container_name: perf-medplum4
-    image: medplum/medplum-server
-    pull_policy: always
-    command:
-      - file:/srv/config.json
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 4G
-    depends_on:
-      medplum-checker0:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - global
-    volumes:
-      - ./medplum:/srv
-
-  medplum-checker4:
-    container_name: perf-medplum4-hc
-    image: curlimages/curl
-    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
-    depends_on:
-      medplum4:
-        condition: service_started
-    entrypoint: /bin/sh
-    healthcheck:
-      test: curl -f http://medplum4:8103/healthcheck
-      interval: 10s
-      start_period: 30s
-      retries: 10
-    networks:
-      - global
-
-  medplum5:
-    container_name: perf-medplum5
-    image: medplum/medplum-server
-    pull_policy: always
-    command:
-      - file:/srv/config.json
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 4G
-    depends_on:
-      medplum-checker0:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - global
-    volumes:
-      - ./medplum:/srv
-
-  medplum-checker5:
-    container_name: perf-medplum5-hc
-    image: curlimages/curl
-    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
-    depends_on:
-      medplum5:
-        condition: service_started
-    entrypoint: /bin/sh
-    healthcheck:
-      test: curl -f http://medplum5:8103/healthcheck
-      interval: 10s
-      start_period: 30s
-      retries: 10
-    networks:
-      - global
-
-  medplum6:
-    container_name: perf-medplum6
-    image: medplum/medplum-server
-    pull_policy: always
-    command:
-      - file:/srv/config.json
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 4G
-    depends_on:
-      medplum-checker0:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - global
-    volumes:
-      - ./medplum:/srv
-
-  medplum-checker6:
-    container_name: perf-medplum6-hc
-    image: curlimages/curl
-    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
-    depends_on:
-      medplum6:
-        condition: service_started
-    entrypoint: /bin/sh
-    healthcheck:
-      test: curl -f http://medplum6:8103/healthcheck
-      interval: 10s
-      start_period: 30s
-      retries: 10
-    networks:
-      - global
-
-  medplum7:
-    container_name: perf-medplum7
-    image: medplum/medplum-server
-    pull_policy: always
-    command:
-      - file:/srv/config.json
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 4G
-    depends_on:
-      medplum-checker0:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - global
-    volumes:
-      - ./medplum:/srv
-
-  medplum-checker7:
-    container_name: perf-medplum7-hc
-    image: curlimages/curl
-    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
-    depends_on:
-      medplum7:
-        condition: service_started
-    entrypoint: /bin/sh
-    healthcheck:
-      test: curl -f http://medplum7:8103/healthcheck
+      test: curl -f http://medplum:8103/healthcheck
       interval: 10s
       start_period: 30s
       retries: 10
@@ -585,21 +291,7 @@ services:
         condition: service_healthy
       hapi-checker:
         condition: service_healthy
-      medplum-checker0:
-        condition: service_healthy
-      medplum-checker1:
-        condition: service_healthy
-      medplum-checker2:
-        condition: service_healthy
-      medplum-checker3:
-        condition: service_healthy
-      medplum-checker4:
-        condition: service_healthy
-      medplum-checker5:
-        condition: service_healthy
-      medplum-checker6:
-        condition: service_healthy
-      medplum-checker7:
+      medplum-checker:
         condition: service_healthy
       prometheus:
         condition: service_healthy
