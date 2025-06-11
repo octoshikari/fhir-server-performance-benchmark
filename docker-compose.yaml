@@ -199,20 +199,17 @@ services:
       - ./results:/results
     working_dir: /test
 
-  medplum:
+  medplum-x:
+    container_name: perf-medplum-x
     image: medplum/medplum-server
     pull_policy: always
     command:
       - file:/srv/config.json
     deploy:
-      replicas: 8
       resources:
         limits:
           cpus: 1
           memory: 1G
-      restart_policy:
-        condition: on-failure
-        delay: 10s
     depends_on:
       postgres:
         condition: service_healthy
@@ -228,16 +225,41 @@ services:
     image: curlimages/curl
     command: ["-c", "trap : TERM INT; sleep infinity & wait"]
     depends_on:
-      medplum:
+      medplum-x:
         condition: service_started
     entrypoint: /bin/sh
     healthcheck:
-      test: curl -f http://medplum:8103/healthcheck
+      test: curl -f http://medplum-x:8103/healthcheck
       interval: 10s
       start_period: 30s
       retries: 10
     networks:
       - global
+
+  medplum:
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      replicas: 8
+      resources:
+        limits:
+          cpus: 1
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+    depends_on:
+      medplum-x:
+        condition: service_started
+      medplum-checker:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./medplum:/srv
+
 
   postgres:
     container_name: perf-postgres
