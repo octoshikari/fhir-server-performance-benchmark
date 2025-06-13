@@ -13,7 +13,8 @@ fi
 IDTAG=fhirimpl
 OUTDIR=${OUTDIR:-/tmp}
 PAUSE=30
-RUN_ARGS="--no-usage-report --tag runid=${RUNID}"
+DEFAULT_RUN_ARGS="--no-usage-report --tag runid=${RUNID}"
+RUN_ARGS=${DEFAULT_RUN_ARGS}
 
 if [ -d /auth ]; then
   AUTH_DIR=/auth
@@ -36,11 +37,13 @@ function run() {
   if [ "${CI}" != "" ]; then
     RUN_ARGS="${RUN_ARGS} --quiet"
   fi
-  file=${AUTH_DIR}/${id}.json
-  if [ ! -f ${file} ]; then
-    eval k6 run auth.js --log-format raw 2> ${file}
-    export AUTH_FILE=${file}
-  fi
+  # generate auth params
+  current_run_args=${RUN_ARGS}
+  export RUN_ARGS="${DEFAULT_RUN_ARGS} --quiet"
+  export AUTH_FILE=${AUTH_DIR}/${id}.json
+  eval k6 run auth.js --log-format raw 1>/dev/null 2> ${AUTH_FILE}
+  # run the actual test
+  export RUN_ARGS=${current_run_args}
   eval k6 run ${RUN_ARGS} --tag ${IDTAG}=${id} "$@"
 }
 
@@ -73,7 +76,7 @@ runMedplum import-seed.js
 runAidbox  import-seed.js
 runHapi    import-seed.js
 
-RUN_ARGS="${RUN_ARGS} -o experimental-prometheus-rw"
+RUN_ARGS="${DEFAULT_RUN_ARGS} -o experimental-prometheus-rw"
 
 runMedplum crud.js
 pause
