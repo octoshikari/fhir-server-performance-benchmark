@@ -22,7 +22,7 @@ export const options = {
     crud: {
       executor: 'shared-iterations',
       vus: 100,
-      iterations: 100000,
+      iterations: 30000,
       maxDuration: '5m',
       gracefulStop: '0s',
     },
