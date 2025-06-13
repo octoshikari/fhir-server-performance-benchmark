@@ -34,6 +34,7 @@ function longerPause() {
 function run() {
   id=$1
   shift
+  arg=$1
   if [ "${CI}" != "" ]; then
     RUN_ARGS="${RUN_ARGS} --quiet"
   fi
@@ -44,21 +45,19 @@ function run() {
   eval k6 run auth.js --log-format raw 1>/dev/null 2> ${AUTH_FILE}
   # run the actual test
   export RUN_ARGS=${current_run_args}
+  echo -e "\n[$(date +%H:%M:%S)] \033[1m${id}: ${arg}\033[0m\n"
   eval k6 run ${RUN_ARGS} --tag ${IDTAG}=${id} "$@"
 }
 
 function runAidbox() {
-  echo -e "\n\033[1mRunning: Aidbox $1\033[0m\n"
   AUTH_USER=root AUTH_PASSWORD=secret BASE_URL=http://aidbox:8080/fhir run aidbox $1
 }
 
 function runHapi() {
-  echo -e "\n\033[1mRunning: Hapi $1\033[0m\n"
   BASE_URL=http://hapi:8080/fhir run hapi $1
 }
 
 function runMedplum() {
-  echo -e "\n\033[1mRunning: Medplum $1\033[0m\n"
   BASE_URL=http://medplum:8103/fhir/R4 \
   AUTH_USER=admin@example.com \
   AUTH_PASSWORD=medplum_admin \
