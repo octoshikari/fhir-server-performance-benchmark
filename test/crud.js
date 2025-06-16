@@ -1,7 +1,7 @@
 import http from 'k6/http'
 import { check, group, sleep } from 'k6'
 
-import jsonPatch from './lib/json.js'
+import { jsonPatch } from './util.js'
 
 import claim from './seed/claim.js'
 import encounter from './seed/encounter.js'

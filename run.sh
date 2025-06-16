@@ -91,6 +91,15 @@ runAidbox  import.js
 longerPause
 runHapi    import.js
 
+pause
+
+runMedplum search.js
+pause
+runAidbox  search.js
+pause
+runHapi    search.js
+
+
 cat << EOF > ${OUTDIR}/last-run.json
 {
   "start": ${now},
