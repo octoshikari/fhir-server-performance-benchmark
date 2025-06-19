@@ -59,10 +59,9 @@ steps:
     SSH_KEY:
       from_secret: SSH_KEY
   commands:
+  - sleep 10
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  - sleep 10
   - docker compose up --build -d
-  - sleep 10
   - ./runner.sh -s aidbox -t /test/prewarm.js
   - ./runner.sh -s hapi -t /test/prewarm.js
   # - docker compose run --name perf-k6 --rm k6
@@ -70,3 +69,6 @@ steps:
   # - docker compose run --name perf-reporter --rm reporter
   # - docker compose run --name perf-update-report --rm update-report
   # - docker compose down -v
+
+  # Wait metrics tail
+  - sleep 100
