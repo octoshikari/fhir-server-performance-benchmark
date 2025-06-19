@@ -127,7 +127,12 @@ fi
 
 # Set default run ID if not specified
 if [ -z "$RUN_ID" ]; then
-    RUN_ID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    # Check if RUNID environment variable is set
+    if [ -n "$RUNID" ]; then
+        RUN_ID="$RUNID"
+    else
+        RUN_ID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    fi
 fi
 
 # Validate test path
