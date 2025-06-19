@@ -49,6 +49,8 @@ steps:
     EOF
 
 - name: test
+  depends_on:
+  - configure
   image: docker:dind
   volumes:
   - name: dockersock
