@@ -1,0 +1,166 @@
+#!/bin/sh
+
+set -e
+
+# CLI utility for running FHIR server performance tests
+# Usage: ./runner.sh [-t test] [-s server] [-id runId]
+#   -t test: path to test file (e.g., /test/crud.js, /test/search.js)
+#   -s server: target server: aidbox, hapi, medplum (optional - runs on all servers if not specified)
+#   -id runId: custom run ID (optional - defaults to current UTC timestamp)
+
+# Default values
+DEFAULT_TEST="/test/prewarm.js"
+ALL_SERVERS=("aidbox" "hapi" "medplum")
+
+# Function to display usage
+show_usage() {
+    echo "Usage: $0 [-t test] [-s server] [-id runId]"
+    echo ""
+    echo "Arguments:"
+    echo "  -t test    Path to test file (e.g., /test/crud.js, /test/search.js)"
+    echo "  -s server  Target server: aidbox, hapi, medplum"
+    echo "  -id runId  Custom run ID (optional - defaults to current UTC timestamp)"
+    echo ""
+    echo "Examples:"
+    echo "  $0 -t /test/crud.js -s aidbox -id my-test-run     # Run CRUD test on Aidbox with custom ID"
+    echo "  $0 -t /test/search.js -s hapi                     # Run search test on HAPI with auto-generated ID"
+    echo "  $0 -t /test/prewarm.js                            # Run prewarm test on all servers"
+    echo "  $0                                                # Run default test on all servers"
+    echo ""
+    echo "Available tests:"
+    echo "  /test/prewarm.js"
+    echo "  /test/crud.js"
+    echo "  /test/search.js"
+    echo "  /test/import.js"
+    echo "  /test/import-seed.js"
+    echo "  /test/auth.js"
+}
+
+# Function to validate server argument
+validate_server() {
+    local server=$1
+    for valid_server in "${ALL_SERVERS[@]}"; do
+        if [ "$server" = "$valid_server" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+
+# Function to run test on a specific server
+run_test_on_server() {
+    local test_path=$1
+    local server=$2
+    local run_id=$3
+
+    # TODO: --quiet
+    # Test tags
+    local k6_args="\
+        --no-usage-report -o experimental-prometheus-rw \
+        --tag runid=${run_id} --tag fhirimpl=${server}  "
+    local run_env=""
+    
+    echo "Running test: $test_path on server: $server with run ID: $run_id"
+    echo "================================================"
+    
+    case $server in
+        "aidbox")
+            run_env="export BASE_URL=http://aidbox:8080/fhir"
+            ;;
+        "hapi")
+            run_env="export BASE_URL=http://hapi:8080/fhir"
+            ;;
+        "medplum")
+            run_env="
+                export BASE_URL=http://medplum:8103/fhir/R4
+                export AUTH_USER=admin@example.com
+                export AUTH_PASSWORD=medplum_admin
+                export OAUTH2_LOGIN_URL=http://medplum:8103/auth/login
+                export OAUTH2_TOKEN_URL=http://medplum:8103/oauth2/token"
+            ;;
+    esac
+
+    docker compose run --rm -it --entrypoint /bin/sh k6 -c "$run_env && k6 run $k6_args $test_path"
+}
+
+# Parse command line arguments
+TEST_PATH=""
+SERVER=""
+RUN_ID=""
+
+# Check for help flag
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    show_usage
+    exit 0
+fi
+
+# Parse arguments manually to handle -id flag properly
+while [ $# -gt 0 ]; do
+    case $1 in
+        -t)
+            TEST_PATH="$2"
+            shift 2
+            ;;
+        -s)
+            SERVER="$2"
+            shift 2
+            ;;
+        -id)
+            RUN_ID="$2"
+            shift 2
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Set default test if not specified
+if [ -z "$TEST_PATH" ]; then
+    TEST_PATH=$DEFAULT_TEST
+fi
+
+# Set default run ID if not specified
+if [ -z "$RUN_ID" ]; then
+    RUN_ID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+fi
+
+# Validate test path
+if [ ! -f "test/$(basename "$TEST_PATH")" ]; then
+    echo "Error: Test file not found: $TEST_PATH"
+    echo "Available tests:"
+    ls -1 test/*.js | sed 's|test/|  /test/|'
+    exit 1
+fi
+
+# Validate server if specified
+if [ -n "$SERVER" ] && ! validate_server "$SERVER"; then
+    echo "Error: Invalid server '$SERVER'"
+    echo "Valid servers: ${ALL_SERVERS[*]}"
+    exit 1
+fi
+
+# Run the test(s)
+if [ -z "$SERVER" ]; then
+    # Run on all servers
+    echo "Running test '$TEST_PATH' on all servers sequentially with run ID: $RUN_ID"
+    echo ""
+    for server in "${ALL_SERVERS[@]}"; do
+        run_test_on_server "$TEST_PATH" "$server" "$RUN_ID"
+        echo ""
+        echo "Completed test on $server"
+        echo "----------------------------------------"
+        echo ""
+    done
+    echo "All tests completed!"
+else
+    # Run on specific server
+    run_test_on_server "$TEST_PATH" "$SERVER" "$RUN_ID"
+fi

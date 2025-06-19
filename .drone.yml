@@ -17,11 +17,13 @@ services:
     path: /var/run
 
 steps:
-- name: activate-aidbox
+- name: configure
   image: alpine:latest
   environment:
     LICENSE:
       from_secret: LICENSE
+    VMAUTH:
+      from_secret: VMAUTH
   commands:
   - |
     cat > docker-compose.override.yml << EOF
@@ -30,15 +32,8 @@ steps:
         environment:
           BOX_LICENSE: $LICENSE
     EOF
-  - cat docker-compose.override.yml
-- name: configure-vm
-  image: alpine:latest
-  environment:
-    VMAUTH:
-      from_secret: VMAUTH
-  commands:
   - |
-    cat << EOF >> prometheus/config.yaml
+    cat << EOF >> ifra/prometheus/config.yaml
     remote_write:
     - url: https://vm.cdr.aidbox.dev/api/v1/write
       basic_auth:
@@ -46,7 +41,6 @@ steps:
         password: $VMAUTH
       follow_redirects: true
     EOF
-  - cat prometheus/config.yaml
 
 - name: test
   image: docker:dind
@@ -57,13 +51,12 @@ steps:
     SSH_KEY:
       from_secret: SSH_KEY
   commands:
-  - chmod 777 results # make sure we have write permissions
   - sleep 10 # give docker enough time to start
   - docker compose up --build -d
   - docker ps -a
   - sleep 10 # give docker compose services enough time to start
-  - docker compose run --name perf-k6 --rm k6
-  - sleep 120 # wait for finish remote write
-  - docker compose run --name perf-reporter --rm reporter
-  - docker compose run --name perf-update-report --rm update-report
-  - docker compose down -v
+  # - docker compose run --name perf-k6 --rm k6
+  # - sleep 120 # wait for finish remote write
+  # - docker compose run --name perf-reporter --rm reporter
+  # - docker compose run --name perf-update-report --rm update-report
+  # - docker compose down -v

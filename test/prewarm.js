@@ -5,8 +5,8 @@ export const options = {
   scenarios: {
     warmup: {
       executor: 'per-vu-iterations',
-      vus: 100,
-      iterations: 1000,
+      vus: 10,
+      iterations: 100,
       maxDuration: '1m',
       gracefulStop: '30s',
     },

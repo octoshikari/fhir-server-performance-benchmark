@@ -14,7 +14,8 @@ import patient from './seed/patient.js'
 import practitioner from './seed/practitioner.js'
 
 
-const authHeader = JSON.parse(open(__ENV.AUTH_FILE))
+//const authHeader = JSON.parse(open(__ENV.AUTH_FILE))
+const authHeader = "fooo" 
 
 export const options = {
   discardResponseBodies: false,

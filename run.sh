@@ -14,7 +14,7 @@ IDTAG=fhirimpl
 OUTDIR=${OUTDIR:-/tmp}
 PAUSE=30
 DEFAULT_RUN_ARGS="--no-usage-report --tag runid=${RUNID}"
-RUN_ARGS=${DEFAULT_RUN_ARGS}
+RUN_ARGS="${DEFAULT_RUN_ARGS} -o experimental-prometheus-rw"
 
 if [ -d /auth ]; then
   AUTH_DIR=/auth
@@ -75,7 +75,6 @@ runMedplum import-seed.js
 runAidbox  import-seed.js
 runHapi    import-seed.js
 
-RUN_ARGS="${DEFAULT_RUN_ARGS} -o experimental-prometheus-rw"
 
 runMedplum crud.js
 pause

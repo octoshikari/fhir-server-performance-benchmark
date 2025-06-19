@@ -275,7 +275,6 @@ services:
         condition: service_healthy
       tgz:
         condition: service_healthy
-    entrypoint: /run.sh
     environment:
       BUNDLE_URL: http://tgz:8080
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
@@ -289,6 +288,7 @@ services:
       - /auth
     volumes:
       - ./run.sh:/run.sh:ro
+      - ./perf.sh:/perf.sh:ro
       - ./test:/test
       - ./results:/results
     working_dir: /test
