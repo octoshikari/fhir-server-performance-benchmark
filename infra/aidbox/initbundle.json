@@ -1,0 +1,16 @@
+{
+    "type": "batch",
+    "entry": [
+      {
+        "request": {
+          "method": "POST",
+          "url": "/AccessPolicy",
+          "ifNoneExist": "_id=perf"
+        },
+        "resource": {
+          "id": "perf",
+          "engine": "allow"
+        }
+      }
+    ]
+  }

@@ -51,10 +51,11 @@ steps:
     SSH_KEY:
       from_secret: SSH_KEY
   commands:
-  - sleep 10 # give docker enough time to start
+  - sleep 10
   - docker compose up --build -d
   - docker ps -a
-  - sleep 10 # give docker compose services enough time to start
+  - sleep 10
+  - ./runner.sh -s aidbox -t /test/prewarm.js
   # - docker compose run --name perf-k6 --rm k6
   # - sleep 120 # wait for finish remote write
   # - docker compose run --name perf-reporter --rm reporter

@@ -81,7 +81,7 @@ run_test_on_server() {
             ;;
     esac
 
-    docker compose run --rm -it --entrypoint /bin/sh k6 -c "$run_env && k6 run $k6_args $test_path"
+    docker compose run -q --rm -it --entrypoint /bin/sh k6 -c "$run_env && k6 run $k6_args $test_path"
 }
 
 # Parse command line arguments

@@ -46,6 +46,8 @@ services:
         limits:
           cpus: '8'
           memory: 6G
+    volumes:
+      - ./infra/aidbox/initbundle.json:/tmp/initbundle.json
     environment:
       BOX_ADMIN_PASSWORD: secret
       BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
@@ -63,6 +65,7 @@ services:
       BOX_FHIR_SEARCH_COMPARISONS: true
       BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
       BOX_METRICS_PORT: 8379
+      BOX_INIT_BUNDLE: file:///tmp/initbundle.json
       BOX_ROOT_CLIENT_SECRET: secret
       BOX_SEARCH_INCLUDE_CONFORMANT: true
       BOX_SECURITY_DEV_MODE: true
