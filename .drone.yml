@@ -33,7 +33,7 @@ steps:
           BOX_LICENSE: $LICENSE
     EOF
   - |
-    cat << EOF >> ifra/prometheus/config.yaml
+    cat << EOF >> infra/prometheus/config.yaml
     remote_write:
     - url: https://vm.cdr.aidbox.dev/api/v1/write
       basic_auth:
