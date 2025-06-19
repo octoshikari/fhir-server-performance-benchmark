@@ -10,7 +10,7 @@ set -e
 
 # Default values
 DEFAULT_TEST="/test/prewarm.js"
-ALL_SERVERS=("aidbox" "hapi" "medplum")
+ALL_SERVERS="aidbox hapi medplum"
 
 # Function to display usage
 show_usage() {
@@ -39,12 +39,10 @@ show_usage() {
 # Function to validate server argument
 validate_server() {
     local server=$1
-    for valid_server in "${ALL_SERVERS[@]}"; do
-        if [ "$server" = "$valid_server" ]; then
-            return 0
-        fi
-    done
-    return 1
+    case " $ALL_SERVERS " in
+        *" $server "*) return 0 ;;
+        *) return 1 ;;
+    esac
 }
 
 
@@ -143,7 +141,7 @@ fi
 # Validate server if specified
 if [ -n "$SERVER" ] && ! validate_server "$SERVER"; then
     echo "Error: Invalid server '$SERVER'"
-    echo "Valid servers: ${ALL_SERVERS[*]}"
+    echo "Valid servers: $ALL_SERVERS"
     exit 1
 fi
 
@@ -152,7 +150,7 @@ if [ -z "$SERVER" ]; then
     # Run on all servers
     echo "Running test '$TEST_PATH' on all servers sequentially with run ID: $RUN_ID"
     echo ""
-    for server in "${ALL_SERVERS[@]}"; do
+    for server in $ALL_SERVERS; do
         run_test_on_server "$TEST_PATH" "$server" "$RUN_ID"
         echo ""
         echo "Completed test on $server"
