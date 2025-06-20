@@ -28,12 +28,18 @@ steps:
   - name: dockersock
     path: /var/run
   commands:
-  # Wait for Docker daemon to be ready
   - |
     echo "Waiting for Docker daemon to start..."
-    until docker info >/dev/null 2>&1; do
-      sleep 1
+    n=0
+    until [ $n -ge 30 ] || docker info >/dev/null 2>&1; do
+      n=$((n+1))
+      echo "Attempt $n: Docker daemon not ready, waiting..."
+      sleep 2
     done
+    if [ $n -ge 30 ]; then
+      echo "Docker daemon failed to start after 60 seconds"
+      exit 1
+    fi
     echo "Docker daemon is ready"
 
 - name: configure
