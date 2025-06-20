@@ -88,7 +88,26 @@ steps:
   commands:
   ## Run infra
   - docker compose up --build -d
-  - sleep 60
+  ## Wait for services to be healthy
+  - |
+    for service in aidbox hapi-checker medplum; do
+      echo "Waiting for $service to be healthy..."
+      n=0
+      until [ "$n" -ge 30 ]; do
+        if docker compose ps $service | grep -q "healthy"; then
+          echo "$service is healthy"
+          break
+        fi
+        n=$((n+1))
+        echo "Attempt $n: $service not healthy yet, waiting..."
+        sleep 10
+      done
+      if [ $n -ge 30 ]; then
+        echo "$service failed to become healthy after 300 seconds"
+        docker compose logs $service
+        exit 1
+      fi
+    done
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
