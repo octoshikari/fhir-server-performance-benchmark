@@ -22,7 +22,20 @@ services:
     path: /var/lib/docker
 
 steps:
+- name: dind-ready
+  image: alpine:latest
+  commands:
+  # Wait for Docker daemon to be ready
+  - |
+    echo "Waiting for Docker daemon to start..."
+    until docker info >/dev/null 2>&1; do
+      sleep 1
+    done
+    echo "Docker daemon is ready"
+
 - name: configure
+  depends_on:
+  - dind-ready
   image: alpine:latest
   environment:
     LICENSE:
