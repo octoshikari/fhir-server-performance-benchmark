@@ -22,7 +22,7 @@ services:
     path: /var/lib/docker
 
 steps:
-- name: ifra-ready
+- name: dind-ready
   image: docker:dind
   volumes:
   - name: dockersock
