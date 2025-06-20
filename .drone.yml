@@ -87,7 +87,25 @@ steps:
       from_secret: SSH_KEY
   commands:
   ## Run infra
-  - docker compose up --wait --wait-timeout 600 --build -d || docker compose up  --wait
+  - docker compose up --build -d 
+
+  ## Wait infra are ready
+  - |
+    n=0
+    until [ $n -ge 5 ]
+    do
+      if docker compose up --wait; then
+        echo "Services are ready"
+        break
+      fi
+      n=$((n+1))
+      echo "Attempt $n: Services not ready yet, retrying..."
+      sleep 10
+    done
+    if [ $n -ge 5 ]; then
+      echo "Services failed to start after 5 attempts"
+      exit 1
+    fi
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
