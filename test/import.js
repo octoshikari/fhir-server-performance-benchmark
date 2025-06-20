@@ -25,7 +25,7 @@ export function setup() {
   // First - load hospital and practitioner information
   const seeds = ["hospitalInformation.json", "practitionerInformation.json"]
   seeds.forEach(x => {
-    const src = http.get(`${bundleUrl}/${x}`)
+    const src = http.get(`${bundleUrl}/${x}`, {responseType: 'text'})
     http.post(baseUrl, src.body, params)
   })
 
@@ -34,7 +34,7 @@ export function setup() {
 }
 
 export default function ({ baseUrl, bundleUrl, params, }) {
-  const bundle = http.get( bundleUrl, { tags: { group: '::source' } })
+  const bundle = http.get( bundleUrl, { tags: { group: '::source' }, responseType: 'text' })
   const x = http.post( baseUrl, bundle.body, { ...params, tags: { group: '::import' } })
 
   if (!check(x, { ['Bundle import']: ({ status }) => status === 200 })) return
