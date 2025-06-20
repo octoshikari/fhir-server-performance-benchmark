@@ -77,7 +77,7 @@ steps:
   - name: dockersock
     path: /var/run
   environment:
-    CI: true
+    # CI: true
     SSH_KEY:
       from_secret: SSH_KEY
   commands:
