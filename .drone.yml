@@ -87,7 +87,7 @@ steps:
       from_secret: SSH_KEY
   commands:
   ## Run infra
-  - docker compose up --build -d
+  - docker compose up --wait --build -d 
   ## Wait for services to be healthy
   - |
     for service in aidbox hapi-checker medplum; do
