@@ -87,7 +87,7 @@ steps:
       from_secret: SSH_KEY
   commands:
   ## Run infra
-  - docker compose up --wait --wait-timeout 600 --build -d || true
+  - docker compose up --wait --wait-timeout 600 --build -d || docker compose up  --wait
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -95,9 +95,9 @@ steps:
   ## Prewarm
   - ./runner.sh -t /test/prewarm.js
   ## Run all tests
-  # - ./runner.sh -t /test/crud.js
+  - ./runner.sh -t /test/crud.js
   - ./runner.sh -t /test/import.js
-  # - ./runner.sh -t /test/search.js
+  - ./runner.sh -t /test/search.js
 
   ## Wait metrics tail
   - sleep 100
