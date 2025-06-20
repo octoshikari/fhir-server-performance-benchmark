@@ -164,7 +164,7 @@ services:
     command:
       - file:/srv/config.json
     deploy:
-      replicas: 8
+      replicas: 4
       resources:
         limits:
           cpus: 1
@@ -186,8 +186,7 @@ services:
           "-e",
           'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
         ]
-      start_period: 60s
-      start_interval: 10s
+      start_period: 120s
       interval: 30s
       timeout: 10s
       retries: 10
@@ -215,17 +214,17 @@ services:
   k6:
     container_name: perf-k6
     image: grafana/k6
-    depends_on:
-      aidbox:
-        condition: service_healthy
-      hapi-checker:
-        condition: service_healthy
-      medplum:
-        condition: service_healthy
-      prometheus:
-        condition: service_healthy
-      tgz:
-        condition: service_healthy
+    # depends_on:
+      # aidbox:
+      #   condition: service_healthy
+      # hapi-checker:
+      #   condition: service_healthy
+      # medplum:
+      #   condition: service_healthy
+      # prometheus:
+      #   condition: service_healthy
+      # tgz:
+      #   condition: service_healthy
     networks:
       - global
     profiles:
