@@ -33,7 +33,7 @@ steps:
   - name: dockersock
     path: /var/run
   commands:
-  # Wait for Docker daemon to be ready
+  # Wait for Docker daemon to be ready. 
   - |
     echo "Waiting for Docker daemon to start..."
     n=0
