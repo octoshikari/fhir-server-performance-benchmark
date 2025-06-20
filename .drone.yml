@@ -23,7 +23,10 @@ services:
 
 steps:
 - name: dind-ready
-  image: alpine:latest
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
   commands:
   # Wait for Docker daemon to be ready
   - |
