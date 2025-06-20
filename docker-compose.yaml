@@ -164,7 +164,7 @@ services:
     command:
       - file:/srv/config.json
     deploy:
-      replicas: 4
+      replicas: 8
       resources:
         limits:
           cpus: 1
