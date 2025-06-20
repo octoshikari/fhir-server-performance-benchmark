@@ -239,9 +239,9 @@ services:
           "-e",
           'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
         ]
-      interval: 30s
+      interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
 
 
   prometheus:
