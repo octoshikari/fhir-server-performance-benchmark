@@ -20,7 +20,15 @@ services:
     path: /var/run
   - name: perf-image-cache
     path: /var/lib/docker
+
+steps:
+- name: ifra-ready
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
   commands:
+  # Wait for Docker daemon to be ready
   - |
     echo "Waiting for Docker daemon to start..."
     n=0
@@ -34,9 +42,10 @@ services:
       exit 1
     fi
     echo "Docker daemon is ready"
-  - docker compose up --build -d
 
 - name: configure
+  depends_on:
+  - dind-ready
   image: alpine:latest
   environment:
     LICENSE:
@@ -73,6 +82,8 @@ services:
     SSH_KEY:
       from_secret: SSH_KEY
   commands:
+  ## Run infra
+  - docker compose up --build -d
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
