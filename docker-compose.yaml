@@ -45,7 +45,7 @@ services:
       resources:
         limits:
           cpus: '8'
-          memory: 6G
+          memory: 8G
     volumes:
       - ./infra/aidbox/initbundle.json:/tmp/initbundle.json
     environment:
@@ -55,8 +55,8 @@ services:
       BOX_DB_HOST: postgres
       BOX_DB_PASSWORD: postgres
       BOX_DB_USER: postgres
-      BOX_DB_POOL_MAXIMUM__POOL__SIZE: 16
-      BOX_WEB_THREAD: 8
+      BOX_DB_POOL_MAXIMUM__POOL__SIZE: 32
+      BOX_WEB_THREAD: 16
       BOX_FHIR_COMPLIANT_MODE: true
       BOX_FHIR_CORRECT_AIDBOX_FORMAT: true
       BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
@@ -184,7 +184,7 @@ services:
       resources:
         limits:
           cpus: '8'
-          memory: 6G
+          memory: 8G
     networks:
       - global
     ports:
