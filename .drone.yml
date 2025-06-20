@@ -19,7 +19,7 @@ services:
   - name: dockersock
     path: /var/run
   - name: perf-image-cache
-    path: /var/lib/docker/overlay2
+    path: /var/lib/docker/image
 
 steps:
 - name: dind-ready
