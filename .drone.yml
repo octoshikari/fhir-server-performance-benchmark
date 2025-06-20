@@ -93,7 +93,7 @@ steps:
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
   ## Prewarm
-  # - ./runner.sh -t /test/prewarm.js
+  - ./runner.sh -t /test/prewarm.js
   ## Run all tests
   # - ./runner.sh -t /test/crud.js
   - ./runner.sh -t /test/import.js
