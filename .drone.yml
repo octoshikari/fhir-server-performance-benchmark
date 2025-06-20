@@ -9,7 +9,7 @@ volumes:
   temp: {}
 - name: perf-image-cache 
   host:
-    path: /tmp/perf-image-cache
+    path: /tmp/perf-test-image-cache
 
 services:
 - name: dind
@@ -19,7 +19,7 @@ services:
   - name: dockersock
     path: /var/run
   - name: perf-image-cache
-    path: /var/lib/docker
+    path: /var/lib/docker/overlay2
 
 steps:
 - name: dind-ready
