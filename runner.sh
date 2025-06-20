@@ -90,6 +90,12 @@ run_test_on_server() {
     else
         docker compose run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run $k6_args $test_path"
     fi
+
+    echo ""
+    echo "Completed test: $test_path on server: $server"
+    echo "----------------------------------------"
+    echo ""
+    echo ""
 }
 
 # Parse command line arguments
@@ -167,10 +173,6 @@ if [ -z "$SERVER" ]; then
     echo ""
     for server in $ALL_SERVERS; do
         run_test_on_server "$TEST_PATH" "$server" "$RUN_ID"
-        echo ""
-        echo "Completed test on $server"
-        echo "----------------------------------------"
-        echo ""
     done
     echo "All tests completed!"
 else
