@@ -20,6 +20,8 @@ services:
     path: /var/run
   - name: perf-image-cache
     path: /var/lib/docker
+  commands:
+  - ls -lah 
 
 steps:
 - name: dind-ready
@@ -81,8 +83,6 @@ steps:
     SSH_KEY:
       from_secret: SSH_KEY
   commands:
-  - sleep 10
-  - docker compose up --build -d
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
