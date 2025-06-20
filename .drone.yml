@@ -65,9 +65,12 @@ steps:
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-  ## Run all tests
+  ## Prewarm
   - ./runner.sh -t /test/prewarm.js
+  ## Run all tests
   - ./runner.sh -t /test/crud.js
+  - ./runner.sh -t /test/import.js
+  - ./runner.sh -t /test/search.js
 
   ## Wait metrics tail
   - sleep 100

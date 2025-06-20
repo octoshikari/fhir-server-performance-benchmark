@@ -52,25 +52,29 @@ run_test_on_server() {
     local server=$2
     local run_id=$3
 
-    # TODO: --quiet
-    # Test tags
+    local run_env="
+        export BUNDLE_URL=http://tgz:8080
+        export K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+        export K6_PROMETHEUS_RW_TREND_STATS='p(95),p(99),min,max'"
+
     local k6_args="\
         --no-usage-report -o experimental-prometheus-rw \
         --tag runid=${run_id} --tag fhirimpl=${server}  "
-    local run_env=""
     
     echo "Running test: $test_path on server: $server with run ID: $run_id"
     echo "================================================"
     
     case $server in
         "aidbox")
-            run_env="export BASE_URL=http://aidbox:8080/fhir"
+            run_env="${run_env}
+                export BASE_URL=http://aidbox:8080/fhir"
             ;;
         "hapi")
-            run_env="export BASE_URL=http://hapi:8080/fhir"
+            run_env="${run_env}
+                export BASE_URL=http://hapi:8080/fhir"
             ;;
         "medplum")
-            run_env="
+            run_env="${run_env}
                 export BASE_URL=http://medplum:8103/fhir/R4
                 export OAUTH2_USER=admin@example.com
                 export OAUTH2_PASSWORD=medplum_admin

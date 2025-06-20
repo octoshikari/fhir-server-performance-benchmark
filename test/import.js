@@ -1,35 +1,38 @@
 import http from 'k6/http'
 import { check } from 'k6'
 import { Counter } from 'k6/metrics'
+import { headers } from './util.js'
 
 const bundleSize = new Counter('bundle_size')
-const authHeader = JSON.parse(open(__ENV.AUTH_FILE))
 
 export const options = {
   discardResponseBodies: false,
   scenarios: {
     import: {
-      executor: 'shared-iterations',
-      vus: 4,
-      iterations: 1000,
-      maxDuration: '5m',
-      gracefulStop: '0s',
+      executor: 'constant-vus',
+      vus: 8,
+      duration: '10m',
+      gracefulStop: '30s',
     },
   },
 }
 
 export function setup() {
+
+  const bundleUrl = __ENV.BUNDLE_URL
+  const baseUrl = __ENV.BASE_URL
+  const params = { headers: headers() }
+
+  const seeds = ["hospitalInformation.json", "practitionerInformation.json"]
+  seeds.forEach(x => {
+    const src = http.get(`${bundleUrl}/${x}`)
+    http.post(baseUrl, src.body, params)
+  })
+
   return {
-    baseUrl: __ENV.BASE_URL,
-    bundleUrl: __ENV.BUNDLE_URL,
-    params: {
-      headers: {
-        ...authHeader,
-        "Accept-Encoding": "gzip",
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-    },
+    baseUrl,
+    bundleUrl,
+    params,
   }
 }
 

@@ -1,7 +1,5 @@
 import { group } from 'k6'
-import { is200 } from './util.js'
-
-const authHeader = JSON.parse(open(__ENV.AUTH_FILE))
+import { is200, headers } from './util.js'
 
 export const options = {
   discardResponseBodies: true,
@@ -10,7 +8,7 @@ export const options = {
       executor: 'constant-vus',
       vus: 50,
       duration: '5m',
-      gracefulStop: '60s',
+      gracefulStop: '30s',
     },
   },
 }
@@ -18,14 +16,7 @@ export const options = {
 export function setup() {
   return {
     baseUrl: __ENV.BASE_URL,
-    params: {
-      headers: {
-        ...authHeader,
-        "Accept-Encoding": "gzip",
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      }
-    },
+    params: { headers: headers() },
   }
 }
 

@@ -278,23 +278,13 @@ services:
         condition: service_healthy
       tgz:
         condition: service_healthy
-    environment:
-      BUNDLE_URL: http://tgz:8080
-      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
-      K6_PROMETHEUS_RW_TREND_STATS: p(95),p(99),min,max
-      OUTDIR: /results
     networks:
       - global
     profiles:
       - donotstart
-    tmpfs:
-      - /auth
     volumes:
-      - ./run.sh:/run.sh:ro
-      - ./perf.sh:/perf.sh:ro
       - ./test:/test
-      - ./results:/results
-    working_dir: /test
+      - ./runner.sh:/runner.sh:ro
 
 
   redis:
