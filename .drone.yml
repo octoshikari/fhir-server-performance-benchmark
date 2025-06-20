@@ -67,6 +67,7 @@ steps:
 
   ## Run all tests
   - ./runner.sh -t /test/prewarm.js
+  - ./runner.sh -t /test/crud.js
 
   ## Wait metrics tail
   - sleep 100

@@ -4,10 +4,9 @@ export const options = {
   discardResponseBodies: false,
   scenarios: {
     warmup: {
-      executor: 'per-vu-iterations',
+      executor: 'constant-vus',
       vus: 10,
-      iterations: 100,
-      maxDuration: '1m',
+      duration: '30s',
       gracefulStop: '30s',
     },
   },

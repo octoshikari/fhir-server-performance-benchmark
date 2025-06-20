@@ -18,10 +18,9 @@ export const options = {
   discardResponseBodies: false,
   scenarios: {
     crud: {
-      executor: 'shared-iterations',
-      vus: 100,
-      iterations: 30000,
-      maxDuration: '5m',
+      executor: 'constant-vus',
+      vus: 300,
+      duration: '5m',
       gracefulStop: '30s',
     },
   },
