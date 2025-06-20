@@ -1,7 +1,7 @@
 import http from 'k6/http'
 import { check, group, sleep } from 'k6'
 
-import { jsonPatch } from './util.js'
+import { jsonPatch, headers } from './util.js'
 
 import claim from './seed/claim.js'
 import encounter from './seed/encounter.js'
@@ -14,9 +14,6 @@ import patient from './seed/patient.js'
 import practitioner from './seed/practitioner.js'
 
 
-//const authHeader = JSON.parse(open(__ENV.AUTH_FILE))
-const authHeader = "fooo" 
-
 export const options = {
   discardResponseBodies: false,
   scenarios: {
@@ -25,7 +22,7 @@ export const options = {
       vus: 100,
       iterations: 30000,
       maxDuration: '5m',
-      gracefulStop: '0s',
+      gracefulStop: '30s',
     },
   },
 }
@@ -33,14 +30,7 @@ export const options = {
 export function setup() {
   return {
     baseUrl: __ENV.BASE_URL,
-    params: {
-      headers: {
-        ...authHeader,
-        "Accept-Encoding": "gzip",
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      }
-    },
+    params: { headers: headers(), },
     seeds: {
       claim: JSON.stringify(claim),
       encounter: JSON.stringify(encounter),

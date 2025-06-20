@@ -72,14 +72,20 @@ run_test_on_server() {
         "medplum")
             run_env="
                 export BASE_URL=http://medplum:8103/fhir/R4
-                export AUTH_USER=admin@example.com
-                export AUTH_PASSWORD=medplum_admin
+                export OAUTH2_USER=admin@example.com
+                export OAUTH2_PASSWORD=medplum_admin
                 export OAUTH2_LOGIN_URL=http://medplum:8103/auth/login
                 export OAUTH2_TOKEN_URL=http://medplum:8103/oauth2/token"
             ;;
     esac
 
-    docker compose run --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run $k6_args $test_path"
+    # TODO: quiet  for docker compose and k6
+
+    if [ -n "$CI" ]; then
+        docker compose run --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run --quiet $k6_args $test_path"
+    else
+        docker compose run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run --quiet $k6_args $test_path"
+    fi
 }
 
 # Parse command line arguments
