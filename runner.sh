@@ -88,7 +88,7 @@ run_test_on_server() {
     if [ -n "$CI" ]; then
         docker compose run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run --quiet $k6_args $test_path"
     else
-        docker compose run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run --quiet $k6_args $test_path"
+        docker compose run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run $k6_args $test_path"
     fi
 }
 
