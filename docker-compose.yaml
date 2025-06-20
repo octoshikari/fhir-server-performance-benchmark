@@ -84,56 +84,6 @@ services:
     ports:
       - "13080:8080"
 
-  aidbox-indexer:
-    container_name: perf-aidbox-idx
-    depends_on:
-      postgres:
-        condition: service_healthy
-      aidbox:
-        condition: service_healthy
-    image: postgres:17
-    command:
-      - bash
-      - -c
-      - |
-        psql -v ON_ERROR_STOP=1 <<-EOF
-          CREATE INDEX IF NOT EXISTS claim_resource_idx ON Claim USING GIN (resource jsonb_path_ops);
-          CREATE INDEX IF NOT EXISTS encounter_resource_idx ON Encounter USING GIN (resource jsonb_path_ops);
-          CREATE INDEX IF NOT EXISTS explanation_of_benefit_resource_idx ON ExplanationOfBenefit USING GIN (resource jsonb_path_ops);
-          CREATE INDEX IF NOT EXISTS location_resource_idx ON Location USING GIN (resource jsonb_path_ops);
-          CREATE INDEX IF NOT EXISTS medication_request_resource_idx ON MedicationRequest USING GIN (resource jsonb_path_ops);
-          CREATE INDEX IF NOT EXISTS observation_resource_idx ON Observation USING GIN (resource jsonb_path_ops);
-          CREATE INDEX IF NOT EXISTS organization_resource_idx ON Organization USING GIN (resource jsonb_path_ops);
-          -- Patient index
-          CREATE INDEX IF NOT EXISTS patient_resource_idx ON Patient USING GIN (resource jsonb_path_ops);
-          CREATE INDEX CONCURRENTLY IF NOT EXISTS "patient_name_param_knife_string" ON "patient" USING gin
-                ((aidbox_text_search(knife_extract_text("patient".resource,
-                '[["name","family"],["name","given"],["name","middle"],["name","text"],["name","prefix"],["name","suffix"]]')))
-                gin_trgm_ops);
-          CREATE INDEX CONCURRENTLY IF NOT EXISTS "patient_name_param_knife_string" ON "patient" USING gin 
-                ((knife_extract_text("patient".resource,
-                '[["name","family"],["name","given"],["name","middle"],["name","text"],["name","prefix"],["name","suffix"]]')));
-          CREATE INDEX CONCURRENTLY IF NOT EXISTS "patient_given_param_knife_string" ON "patient" USING gin
-                ((aidbox_text_search(knife_extract_text("patient".resource,
-                '[["name","given"]]'))) gin_trgm_ops);
-          CREATE INDEX CONCURRENTLY IF NOT EXISTS "patient_given_param_knife_string" ON "patient" USING gin 
-                ((knife_extract_text("patient".resource, '[["name","given"]]')) );
-          CREATE INDEX CONCURRENTLY IF NOT EXISTS "patient_birthdate_param_knife_date_min_tstz" ON "patient" USING btree
-                ((knife_extract_min_timestamptz("patient".resource, '[["birthDate"]]')) );
-          CREATE INDEX CONCURRENTLY IF NOT EXISTS "patient_birthdate_param_knife_date_max_tstz" ON "patient" USING btree
-                ((knife_extract_max_timestamptz("patient".resource, '[["birthDate"]]')) );
-          
-          -- Practitioner index
-          CREATE INDEX IF NOT EXISTS practitioner_resource_idx ON Practitioner USING GIN (resource jsonb_path_ops);
-        EOF
-    environment:
-      PGDATABASE: aidbox
-      PGHOST: postgres
-      PGPASSWORD: postgres
-      PGUSER: postgres
-    networks:
-      - global
-
   cadvisor:
     container_name: perf-cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
@@ -239,9 +189,10 @@ services:
           "-e",
           'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
         ]
-      interval: 10s
+      start_period: 60s
+      interval: 30s
       timeout: 10s
-      retries: 20
+      retries: 10
 
 
   prometheus:
