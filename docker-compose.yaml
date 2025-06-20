@@ -169,9 +169,6 @@ services:
         limits:
           cpus: 1
           memory: 1G
-      restart_policy:
-        condition: on-failure
-        delay: 10s
     depends_on:
       postgres:
         condition: service_healthy
@@ -190,10 +187,10 @@ services:
           'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
         ]
       start_period: 60s
+      start_interval: 10s
       interval: 30s
       timeout: 10s
       retries: 10
-
 
   prometheus:
     container_name: perf-prometheus
