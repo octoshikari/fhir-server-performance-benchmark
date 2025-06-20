@@ -44,8 +44,6 @@ steps:
     echo "Docker daemon is ready"
 
 - name: configure
-  depends_on:
-  - dind-ready
   image: alpine:latest
   environment:
     LICENSE:
@@ -73,6 +71,7 @@ steps:
 - name: test
   depends_on:
   - configure
+  - dind-ready
   image: docker:dind
   volumes:
   - name: dockersock
