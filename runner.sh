@@ -9,31 +9,68 @@ set -e
 #   -id runId: custom run ID (optional - defaults to current UTC timestamp)
 
 # Default values
-DEFAULT_TEST="/test/prewarm.js"
+DEFAULT_TEST="/k6/prewarm.js"
 ALL_SERVERS="aidbox hapi medplum"
 
 # Function to display usage
 show_usage() {
     echo "Usage: $0 [-t test] [-s server] [-id runId]"
+    echo "       $0 bootstrap"
+    echo ""
+    echo "Commands:"
+    echo "  bootstrap  Start Docker Compose services"
     echo ""
     echo "Arguments:"
-    echo "  -t test    Path to test file (e.g., /test/crud.js, /test/search.js)"
+    echo "  -t test    Path to test file (e.g., /k6/crud.js, /k6/search.js)"
     echo "  -s server  Target server: aidbox, hapi, medplum"
     echo "  -id runId  Custom run ID (optional - defaults to current UTC timestamp)"
     echo ""
     echo "Examples:"
-    echo "  $0 -t /test/crud.js -s aidbox -id my-test-run     # Run CRUD test on Aidbox with custom ID"
-    echo "  $0 -t /test/search.js -s hapi                     # Run search test on HAPI with auto-generated ID"
-    echo "  $0 -t /test/prewarm.js                            # Run prewarm test on all servers"
+    echo "  $0 bootstrap                                    # Start services"
+    echo "  $0 -t /k6/crud.js -s aidbox -id my-test-run     # Run CRUD test on Aidbox with custom ID"
+    echo "  $0 -t /k6/search.js -s hapi                     # Run search test on HAPI with auto-generated ID"
+    echo "  $0 -t /k6/prewarm.js                            # Run prewarm test on all servers"
     echo "  $0                                                # Run default test on all servers"
     echo ""
     echo "Available tests:"
-    echo "  /test/prewarm.js"
-    echo "  /test/crud.js"
-    echo "  /test/search.js"
-    echo "  /test/import.js"
-    echo "  /test/import-seed.js"
-    echo "  /test/auth.js"
+    echo "  /k6/prewarm.js"
+    echo "  /k6/crud.js"
+    echo "  /k6/search.js"
+    echo "  /k6/import.js"
+    echo "  /k6/import-seed.js"
+    echo "  /k6/auth.js"
+}
+
+# Function to bootstrap Docker Compose services with retry logic
+bootstrap_services() {
+    local max_attempts=5
+    local attempt=1
+    
+    echo "Starting Docker Compose services  (max $max_attempts attempts)..."
+    echo "================================================"
+    
+    while [ $attempt -le $max_attempts ]; do
+        echo "Attempt $attempt/$max_attempts: Starting services..."
+        
+        if docker compose up -d --wait; then
+            echo "✅ Services started successfully on attempt $attempt!"
+            echo "================================================"
+            return 0
+        else
+            echo "❌ Attempt $attempt failed. Services may still be starting up..."
+            
+            if [ $attempt -lt $max_attempts ]; then
+                echo "Waiting 10 seconds before retry..."
+                sleep 10
+            fi
+            
+            attempt=$((attempt + 1))
+        fi
+    done
+    
+    echo "❌ Failed to start services after $max_attempts attempts"
+    echo "================================================"
+    return 1
 }
 
 # Function to validate server argument
@@ -44,7 +81,6 @@ validate_server() {
         *) return 1 ;;
     esac
 }
-
 
 # Function to run test on a specific server
 run_test_on_server() {
@@ -106,6 +142,12 @@ RUN_ID=""
 # Check for help flag
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     show_usage
+    exit 0
+fi
+
+# Check for bootstrap command
+if [ "$1" = "bootstrap" ]; then
+    bootstrap_services
     exit 0
 fi
 
