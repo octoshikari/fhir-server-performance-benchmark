@@ -34,6 +34,25 @@ services:
       - ./infra/postgres/init:/docker-entrypoint-initdb.d
       - ./infra/postgres/postgres.conf:/postgres.conf
 
+  postgres-exporter:
+    container_name: perf-postgres-exporter
+    image: quay.io/prometheuscommunity/postgres-exporter
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_SOURCE_PASS: postgres
+      DATA_SOURCE_USER: postgres
+      DATA_SOURCE_URI: postgres:5432/postgres?sslmode=disable
+    networks:
+      - global
+    healthcheck:
+      test: wget -O - http://localhost:9187/metrics
+      interval: 10s
+      start_period: 10s
+      timeout: 5s
+      retries: 3
+
   aidbox:
     container_name: perf-aidbox
     image: healthsamurai/aidboxone:edge
@@ -71,6 +90,7 @@ services:
       BOX_SECURITY_DEV_MODE: true
       BOX_SETTINGS_MODE: read-write
       BOX_WEB_BASE_URL: http://localhost:8080
+      BOX_WEB_MAX_BODY: 209715200
       BOX_WEB_PORT: 8080
       BOX_FHIR_SEARCH_DEFAULT_PARAMS_TOTAL: none
       JAVA_OPTS: "-XX:MaxRAMPercentage=75 -XshowSettings:vm"
