@@ -89,13 +89,13 @@ steps:
   ## Run infra
   - docker compose up --build -d 
 
-  ## Wait infra are ready
+  ## Wait until infra was ready
   - |
     n=0
     until [ $n -ge 5 ]
     do
       if docker compose up --wait; then
-        echo "Services are ready"
+        echo "Services is ready"
         break
       fi
       n=$((n+1))

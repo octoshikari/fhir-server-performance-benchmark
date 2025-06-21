@@ -33,7 +33,7 @@ const oauth2 = () => {
     password: pass,
     codeChallengeMethod: "plain",
     codeChallenge: challenge,
-  }), { headers: {"Content-Type": "application/json"} })
+  }), { headers: {"Content-Type": "application/json"}, responseType: 'text' })
 
   if (!check(authCode, { 'OAuth2 auth code': ({ status }) => status === 200 })) {
     console.log("auth code request failed:", authCode.body)
@@ -43,7 +43,7 @@ const oauth2 = () => {
   const token = http.post(
     tokenURL,
     `grant_type=authorization_code&code=${authCode.json('code')}&code_verifier=${challenge}`,
-    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, responseType: 'text' })
 
   if (!check(token, { 'OAuth2 access token': ({ status }) => status === 200 })) {
     console.log('auth token request failed', token.body)
