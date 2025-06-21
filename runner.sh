@@ -152,10 +152,10 @@ if [ -z "$RUN_ID" ]; then
 fi
 
 # Validate test path
-if [ ! -f "test/$(basename "$TEST_PATH")" ]; then
+if [ ! -f "k6/$(basename "$TEST_PATH")" ]; then
     echo "Error: Test file not found: $TEST_PATH"
     echo "Available tests:"
-    ls -1 test/*.js | sed 's|test/|  /test/|'
+    ls -1 k6/*.js | sed 's|k6/|  /k6/|'
     exit 1
 fi
 

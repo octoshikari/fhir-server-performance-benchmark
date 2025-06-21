@@ -111,11 +111,11 @@ steps:
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
   ## Prewarm
-  - ./runner.sh -t /test/prewarm.js
+  - ./runner.sh -t /k6/prewarm.js
   ## Run all tests
-  - ./runner.sh -t /test/crud.js
-  - ./runner.sh -t /test/import.js
-  - ./runner.sh -t /test/search.js
+  - ./runner.sh -t /k6/search.js
+  - ./runner.sh -t /k6/crud.js
+  - ./runner.sh -t /k6/import.js
 
   ## Wait metrics tail
   - sleep 100

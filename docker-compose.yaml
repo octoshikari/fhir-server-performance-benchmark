@@ -214,23 +214,12 @@ services:
   k6:
     container_name: perf-k6
     image: grafana/k6
-    # depends_on:
-      # aidbox:
-      #   condition: service_healthy
-      # hapi-checker:
-      #   condition: service_healthy
-      # medplum:
-      #   condition: service_healthy
-      # prometheus:
-      #   condition: service_healthy
-      # tgz:
-      #   condition: service_healthy
     networks:
       - global
     profiles:
       - donotstart
     volumes:
-      - ./test:/test
+      - ./k6:/k6
       - ./runner.sh:/runner.sh:ro
 
 
