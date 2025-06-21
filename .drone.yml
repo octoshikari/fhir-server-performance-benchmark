@@ -82,7 +82,6 @@ steps:
   - name: dockersock
     path: /var/run
   environment:
-    # CI: true
     SSH_KEY:
       from_secret: SSH_KEY
   commands:
@@ -95,10 +94,11 @@ steps:
 
   ## Prewarm
   - ./runner.sh -t /k6/prewarm.js
-  ## Run all tests
-  - ./runner.sh -t /k6/search.js
+
+  ## Run tests
   - ./runner.sh -t /k6/crud.js
   - ./runner.sh -t /k6/import.js
+  - ./runner.sh -t /k6/search.js
 
   ## Wait metrics tail
   - sleep 100
