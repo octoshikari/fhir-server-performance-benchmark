@@ -15,6 +15,8 @@ services:
     container_name: perf-postgres
     image: postgres:17
     command: postgres -c config_file=/postgres.conf
+    ports:
+      - "13020:5432"
     deploy:
       resources:
         limits:
@@ -234,6 +236,13 @@ services:
   k6:
     container_name: perf-k6
     image: grafana/k6
+    depends_on:
+      aidbox:
+        condition: service_healthy
+      medplum:
+        condition: service_healthy
+      hapi-checker:
+        condition: service_healthy
     networks:
       - global
     profiles:
@@ -241,7 +250,6 @@ services:
     volumes:
       - ./k6:/k6
       - ./runner.sh:/runner.sh:ro
-
 
   redis:
     container_name: perf-redis
@@ -256,7 +264,6 @@ services:
       - global
     volumes:
       - redisdata:/data
-
 
   tgz:
     container_name: perf-tgz

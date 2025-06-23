@@ -9,7 +9,7 @@
 ## Local development
 
 ```sh
-docker compose up
+./runner.sh bootstrap
 ```
 
 Open [http://localhost:13080](http://localhost:13080) and activate Aidbox.
