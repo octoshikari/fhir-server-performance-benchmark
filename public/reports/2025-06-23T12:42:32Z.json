@@ -1,0 +1,40 @@
+{
+    "runid": "2025-06-23T12:22:32Z",
+    "start_time": "2025-06-23T12:22:32Z",
+    "end_time": "2025-06-23T12:32:32Z",
+    "duration": 1000,
+    "suites": [
+        {
+            "name": "CRUD",
+            "description": "Create, Read, Update, Delete",
+            "result": {
+                "type": "Requests per second",
+                "unit": "rps",
+                "data": {
+                    "aidbox": 3200,
+                    "medplum": 1000,
+                    "hapi": 200
+                }
+            },
+            "test_cases": [
+                {
+                    "group": "Create",
+                    "test_cases": [
+                        {
+                            "group": "Patient",
+                            "result": {
+                                "type": "P99",
+                                "unit": "ms",
+                                "data": {
+                                    "aidbox": 3200,
+                                    "medplum": 1000,
+                                    "hapi": 200
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

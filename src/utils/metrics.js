@@ -1,7 +1,35 @@
-import dotenv from 'dotenv'
-dotenv.config()
+// TypeScript types for Prometheus API responses
+/**
+ * @typedef {Object} PrometheusMetric
+ * @property {string} fhirimpl - The FHIR implementation name (e.g., "aidbox")
+ * @property {string} scenario - The test scenario name (e.g., "crud")
+ */
 
-const PROMETHEUS_URL = process.env.METRICS_URL || 'http://localhost:9090'
+/**
+ * @typedef {Object} PrometheusValue
+ * @property {number} timestamp - Unix timestamp in seconds
+ * @property {string} value - The metric value as a string
+ */
+
+/**
+ * @typedef {Object} PrometheusResult
+ * @property {PrometheusMetric} metric - The metric labels
+ * @property {PrometheusValue} value - The metric value with timestamp
+ */
+
+/**
+ * @typedef {Object} PrometheusVectorData
+ * @property {string} resultType - Always "vector" for instant queries
+ * @property {PrometheusResult[]} result - Array of metric results
+ */
+
+/**
+ * @typedef {Object} PrometheusResponse
+ * @property {string} status - Response status ("success" or "error")
+ * @property {PrometheusVectorData} data - The query result data
+ */
+
+const PROMETHEUS_URL = process.env.METRICS_URL || 'http://localhost:13010'
 const USERNAME = process.env.METRICS_USERNAME
 const PASSWORD = process.env.METRICS_PASSWORD
 
