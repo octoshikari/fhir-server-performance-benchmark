@@ -1,24 +1,29 @@
+export interface BenchmarkDataPoint {
+  category: string;
+  aidbox: number;
+  medplum: number;
+  hapi: number;
+}
+
 export interface BenchmarkResult {
-  type: string;
+  label: string;
+  description: string;
   unit: string;
-  data: Record<string, number>;
+  data: BenchmarkDataPoint[];
 }
 
 export interface TestCase {
-  group: string;
-  result: BenchmarkResult;
-}
-
-export interface TestCaseGroup {
-  group: string;
-  test_cases: TestCase[];
+  label: string;
+  description: string;
+  unit: string;
+  data: BenchmarkDataPoint[];
 }
 
 export interface BenchmarkSuite {
   name: string;
   description: string;
   result: BenchmarkResult;
-  test_cases: TestCaseGroup[];
+  test_cases: TestCase[];
 }
 
 export interface BenchmarkReport {
@@ -31,31 +36,29 @@ export interface BenchmarkReport {
 
 // Specific types for common result types
 export type ResultType = 'Requests per second' | 'P99' | 'P95' | 'P50' | 'Average';
-export type UnitType = 'rps' | 'ms' | 's' | 'count';
+export type UnitType = 'rps' | 'ms' | 's' | 'count' | 'RPS' | 'MS';
 
 // Enhanced result interface with specific types
 export interface TypedBenchmarkResult {
-  type: ResultType;
+  label: string;
+  description: string;
   unit: UnitType;
-  data: Record<string, number>;
+  data: BenchmarkDataPoint[];
 }
 
 // Enhanced interfaces using the typed result
 export interface TypedTestCase {
-  group: string;
-  result: TypedBenchmarkResult;
-}
-
-export interface TypedTestCaseGroup {
-  group: string;
-  test_cases: TypedTestCase[];
+  label: string;
+  description: string;
+  unit: UnitType;
+  data: BenchmarkDataPoint[];
 }
 
 export interface TypedBenchmarkSuite {
   name: string;
   description: string;
   result: TypedBenchmarkResult;
-  test_cases: TypedTestCaseGroup[];
+  test_cases: TypedTestCase[];
 }
 
 export interface TypedBenchmarkReport {

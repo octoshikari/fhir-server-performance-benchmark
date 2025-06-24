@@ -1,4 +1,4 @@
-import { BenchmarkReport, TypedBenchmarkReport, ServerName } from '../types/benchmark.types';
+import { BenchmarkReport, TypedBenchmarkReport, ServerName, BenchmarkDataPoint } from '../types/benchmark.types';
 
 /**
  * Parse a benchmark report from JSON string
@@ -85,7 +85,7 @@ function validateBenchmarkSuite(suite: any, index: number) {
 
   const validatedResult = validateBenchmarkResult(suite.result, index);
   const validatedTestCases = suite.test_cases.map((testCase: any, testIndex: number) => {
-    return validateTestCaseGroup(testCase, index, testIndex);
+    return validateTestCase(testCase, index, testIndex);
   });
 
   return {
@@ -104,94 +104,120 @@ function validateBenchmarkResult(result: any, suiteIndex: number) {
     throw new Error(`Invalid result in suite ${suiteIndex}: must be an object`);
   }
 
-  const requiredFields = ['type', 'unit', 'data'];
+  const requiredFields = ['label', 'description', 'unit', 'data'];
   for (const field of requiredFields) {
     if (!(field in result)) {
       throw new Error(`Invalid result in suite ${suiteIndex}: missing required field '${field}'`);
     }
   }
 
-  if (typeof result.type !== 'string') {
-    throw new Error(`Invalid result in suite ${suiteIndex}: type must be a string`);
+  if (typeof result.label !== 'string') {
+    throw new Error(`Invalid result in suite ${suiteIndex}: label must be a string`);
+  }
+
+  if (typeof result.description !== 'string') {
+    throw new Error(`Invalid result in suite ${suiteIndex}: description must be a string`);
   }
 
   if (typeof result.unit !== 'string') {
     throw new Error(`Invalid result in suite ${suiteIndex}: unit must be a string`);
   }
 
-  if (!result.data || typeof result.data !== 'object') {
-    throw new Error(`Invalid result in suite ${suiteIndex}: data must be an object`);
+  if (!Array.isArray(result.data)) {
+    throw new Error(`Invalid result in suite ${suiteIndex}: data must be an array`);
   }
 
-  // Validate that all values in data are numbers
-  for (const [key, value] of Object.entries(result.data)) {
-    if (typeof value !== 'number') {
-      throw new Error(`Invalid result in suite ${suiteIndex}: data value for '${key}' must be a number`);
-    }
-  }
+  const validatedData = result.data.map((dataPoint: any, dataIndex: number) => {
+    return validateBenchmarkDataPoint(dataPoint, suiteIndex, dataIndex);
+  });
 
   return {
-    type: result.type,
+    label: result.label,
+    description: result.description,
     unit: result.unit,
-    data: result.data,
+    data: validatedData,
   };
 }
 
 /**
- * Validate a test case group
+ * Validate a benchmark data point
  */
-function validateTestCaseGroup(testCaseGroup: any, suiteIndex: number, groupIndex: number) {
-  if (!testCaseGroup || typeof testCaseGroup !== 'object') {
-    throw new Error(`Invalid test case group ${groupIndex} in suite ${suiteIndex}: must be an object`);
+function validateBenchmarkDataPoint(dataPoint: any, suiteIndex: number, dataIndex: number): BenchmarkDataPoint {
+  if (!dataPoint || typeof dataPoint !== 'object') {
+    throw new Error(`Invalid data point ${dataIndex} in suite ${suiteIndex}: must be an object`);
   }
 
-  if (!('group' in testCaseGroup)) {
-    throw new Error(`Invalid test case group ${groupIndex} in suite ${suiteIndex}: missing required field 'group'`);
+  const requiredFields = ['category', 'aidbox', 'medplum', 'hapi'];
+  for (const field of requiredFields) {
+    if (!(field in dataPoint)) {
+      throw new Error(`Invalid data point ${dataIndex} in suite ${suiteIndex}: missing required field '${field}'`);
+    }
   }
 
-  if (typeof testCaseGroup.group !== 'string') {
-    throw new Error(`Invalid test case group ${groupIndex} in suite ${suiteIndex}: group must be a string`);
+  if (typeof dataPoint.category !== 'string') {
+    throw new Error(`Invalid data point ${dataIndex} in suite ${suiteIndex}: category must be a string`);
   }
 
-  if (!Array.isArray(testCaseGroup.test_cases)) {
-    throw new Error(`Invalid test case group ${groupIndex} in suite ${suiteIndex}: test_cases must be an array`);
+  if (typeof dataPoint.aidbox !== 'number') {
+    throw new Error(`Invalid data point ${dataIndex} in suite ${suiteIndex}: aidbox must be a number`);
   }
 
-  const validatedTestCases = testCaseGroup.test_cases.map((testCase: any, testIndex: number) => {
-    return validateTestCase(testCase, suiteIndex, groupIndex, testIndex);
-  });
+  if (typeof dataPoint.medplum !== 'number') {
+    throw new Error(`Invalid data point ${dataIndex} in suite ${suiteIndex}: medplum must be a number`);
+  }
+
+  if (typeof dataPoint.hapi !== 'number') {
+    throw new Error(`Invalid data point ${dataIndex} in suite ${suiteIndex}: hapi must be a number`);
+  }
 
   return {
-    group: testCaseGroup.group,
-    test_cases: validatedTestCases,
+    category: dataPoint.category,
+    aidbox: dataPoint.aidbox,
+    medplum: dataPoint.medplum,
+    hapi: dataPoint.hapi,
   };
 }
 
 /**
  * Validate a test case
  */
-function validateTestCase(testCase: any, suiteIndex: number, groupIndex: number, testIndex: number) {
+function validateTestCase(testCase: any, suiteIndex: number, testIndex: number) {
   if (!testCase || typeof testCase !== 'object') {
-    throw new Error(`Invalid test case ${testIndex} in group ${groupIndex} of suite ${suiteIndex}: must be an object`);
+    throw new Error(`Invalid test case ${testIndex} in suite ${suiteIndex}: must be an object`);
   }
 
-  if (!('group' in testCase)) {
-    throw new Error(`Invalid test case ${testIndex} in group ${groupIndex} of suite ${suiteIndex}: missing required field 'group'`);
+  const requiredFields = ['label', 'description', 'unit', 'data'];
+  for (const field of requiredFields) {
+    if (!(field in testCase)) {
+      throw new Error(`Invalid test case ${testIndex} in suite ${suiteIndex}: missing required field '${field}'`);
+    }
   }
 
-  if (typeof testCase.group !== 'string') {
-    throw new Error(`Invalid test case ${testIndex} in group ${groupIndex} of suite ${suiteIndex}: group must be a string`);
+  if (typeof testCase.label !== 'string') {
+    throw new Error(`Invalid test case ${testIndex} in suite ${suiteIndex}: label must be a string`);
   }
 
-  if (!('result' in testCase)) {
-    throw new Error(`Invalid test case ${testIndex} in group ${groupIndex} of suite ${suiteIndex}: missing required field 'result'`);
+  if (typeof testCase.description !== 'string') {
+    throw new Error(`Invalid test case ${testIndex} in suite ${suiteIndex}: description must be a string`);
   }
 
-  const validatedResult = validateBenchmarkResult(testCase.result, suiteIndex);
+  if (typeof testCase.unit !== 'string') {
+    throw new Error(`Invalid test case ${testIndex} in suite ${suiteIndex}: unit must be a string`);
+  }
+
+  if (!Array.isArray(testCase.data)) {
+    throw new Error(`Invalid test case ${testIndex} in suite ${suiteIndex}: data must be an array`);
+  }
+
+  const validatedData = testCase.data.map((dataPoint: any, dataIndex: number) => {
+    return validateBenchmarkDataPoint(dataPoint, suiteIndex, dataIndex);
+  });
 
   return {
-    group: testCase.group,
-    result: validatedResult,
+    label: testCase.label,
+    description: testCase.description,
+    unit: testCase.unit,
+    data: validatedData,
   };
 }
 
@@ -199,21 +225,7 @@ function validateTestCase(testCase: any, suiteIndex: number, groupIndex: number,
  * Get all server names from a benchmark report
  */
 export function getServerNames(report: BenchmarkReport): ServerName[] {
-  const serverNames = new Set<string>();
-  
-  // Extract server names from suite results
-  report.suites.forEach(suite => {
-    Object.keys(suite.result.data).forEach(server => serverNames.add(server));
-    
-    // Extract server names from test cases
-    suite.test_cases.forEach(testCaseGroup => {
-      testCaseGroup.test_cases.forEach(testCase => {
-        Object.keys(testCase.result.data).forEach(server => serverNames.add(server));
-      });
-    });
-  });
-
-  return Array.from(serverNames) as ServerName[];
+  return ['aidbox', 'medplum', 'hapi'];
 }
 
 /**

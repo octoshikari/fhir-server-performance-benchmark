@@ -53,7 +53,7 @@ export default function ReportPage({
           <div>
             <Link href="/" className="text-blue-500"> ← Back to all reports</Link>
             <h1 className="text-2xl font-bold text-gray-900">
-              Performance Benchmark Dashboard
+              Performance Benchmark Report
             </h1>
             <p className="text-sm text-gray-600 mt-1">
               Comparing performance metrics across FHIR servers
@@ -72,7 +72,7 @@ export default function ReportPage({
     {/* Main Content */}
     <main className="max-w-7xl mx-auto px-6 py-8">
       {report.suites.map(suite => (
-        <div key={suite.name}>
+        <div key={suite.name} className="mb-12">
           <Suite  suite={suite} />
         </div>
       ))}

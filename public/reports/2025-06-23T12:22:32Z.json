@@ -6,31 +6,138 @@
     "suites": [
         {
             "name": "CRUD",
-            "description": "Create, Read, Update, Delete",
+            "description": "Create, Read, Update, Delete operations",
             "result": {
-                "type": "Requests per second",
-                "unit": "rps",
-                "data": {
-                    "aidbox": 3200,
-                    "medplum": 1000,
-                    "hapi": 200
-                }
+                "label": "Average requests per second. (Higher is better)",
+                "description": "Some description",
+                "unit": "RPS",
+                "data": [
+                    {
+                        "category": "CRUD",
+                        "aidbox": 3200,
+                        "medplum": 1000,
+                        "hapi": 200
+                    }
+                ]
             },
             "test_cases": [
                 {
-                    "group": "Create",
-                    "test_cases": [
+                    "label": "Create resource latency (Lower is better)",
+                    "description": "P99 in milliseconds per each resource type",
+                    "unit": "MS",
+                    "data": [
                         {
-                            "group": "Patient",
-                            "result": {
-                                "type": "P99",
-                                "unit": "ms",
-                                "data": {
-                                    "aidbox": 3200,
-                                    "medplum": 1000,
-                                    "hapi": 200
-                                }
-                            }
+                            "category": "Patient",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        },
+                        {
+                            "category": "Observation",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        },
+                        {
+                            "category": "Encounter",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        }
+                    ]
+                },
+                {
+                    "label": "Read resource latency (Lower is better)",
+                    "description": "P99 in milliseconds per each resource type",
+                    "unit": "MS",
+                    "data": [
+                        {
+                            "category": "Patient",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        },
+                        {
+                            "category": "Observation",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        },
+                        {
+                            "category": "Encounter",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        }
+                    ]
+                }
+            ]
+        }
+        ,
+{
+            "name": "FHIR Search",
+            "description": "Search operations",
+            "result": {
+                "label": "Average requests per second. (Higher is better)",
+                "description": "Some description",
+                "unit": "RPS",
+                "data": [
+                    {
+                        "category": "CRUD",
+                        "aidbox": 3200,
+                        "medplum": 1000,
+                        "hapi": 200
+                    }
+                ]
+            },
+            "test_cases": [
+                {
+                    "label": "Create resource latency (Lower is better)",
+                    "description": "P99 in milliseconds per each resource type",
+                    "unit": "MS",
+                    "data": [
+                        {
+                            "category": "Patient",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        },
+                        {
+                            "category": "Observation",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        },
+                        {
+                            "category": "Encounter",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        }
+                    ]
+                },
+                {
+                    "label": "Read resource latency (Lower is better)",
+                    "description": "P99 in milliseconds per each resource type",
+                    "unit": "MS",
+                    "data": [
+                        {
+                            "category": "Patient",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        },
+                        {
+                            "category": "Observation",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
+                        },
+                        {
+                            "category": "Encounter",
+                            "aidbox": 3200,
+                            "medplum": 1000,
+                            "hapi": 200
                         }
                     ]
                 }

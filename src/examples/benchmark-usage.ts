@@ -10,31 +10,37 @@ const exampleJsonData = `{
   "suites": [
     {
       "name": "CRUD",
-      "description": "Create, Read, Update, Delete",
+      "description": "Create, Read, Update, Delete operations",
       "result": {
-        "type": "Requests per second",
-        "unit": "rps",
-        "data": {
-          "aidbox": 3200,
-          "medplum": 1000,
-          "hapi": 200
-        }
+        "label": "Average requests per second. (Higher is better)",
+        "description": "Some description",
+        "unit": "RPS",
+        "data": [
+          {
+            "category": "CRUD",
+            "aidbox": 3200,
+            "medplum": 1000,
+            "hapi": 200
+          }
+        ]
       },
       "test_cases": [
         {
-          "group": "Create",
-          "test_cases": [
+          "label": "Create resource latency (Lower is better)",
+          "description": "P99 in milliseconds per each resource type",
+          "unit": "MS",
+          "data": [
             {
-              "group": "Patient",
-              "result": {
-                "type": "P99",
-                "unit": "ms",
-                "data": {
-                  "aidbox": 3200,
-                  "medplum": 1000,
-                  "hapi": 200
-                }
-              }
+              "category": "Patient",
+              "aidbox": 3200,
+              "medplum": 1000,
+              "hapi": 200
+            },
+            {
+              "category": "Observation",
+              "aidbox": 3200,
+              "medplum": 1000,
+              "hapi": 200
             }
           ]
         }
@@ -64,22 +70,28 @@ export function exampleUsage() {
     report.suites.forEach(suite => {
       console.log(`\nSuite: ${suite.name}`);
       console.log(`Description: ${suite.description}`);
-      console.log(`Result type: ${suite.result.type}`);
+      console.log(`Result label: ${suite.result.label}`);
       console.log(`Unit: ${suite.result.unit}`);
       
-      // Display server performance data
-      Object.entries(suite.result.data).forEach(([server, value]) => {
-        console.log(`  ${server}: ${value} ${suite.result.unit}`);
+      // Display server performance data for each data point
+      suite.result.data.forEach(dataPoint => {
+        console.log(`  Category: ${dataPoint.category}`);
+        console.log(`    aidbox: ${dataPoint.aidbox} ${suite.result.unit}`);
+        console.log(`    medplum: ${dataPoint.medplum} ${suite.result.unit}`);
+        console.log(`    hapi: ${dataPoint.hapi} ${suite.result.unit}`);
       });
       
       // Access test cases
-      suite.test_cases.forEach(testCaseGroup => {
-        console.log(`\n  Test Group: ${testCaseGroup.group}`);
-        testCaseGroup.test_cases.forEach(testCase => {
-          console.log(`    Test: ${testCase.group}`);
-          Object.entries(testCase.result.data).forEach(([server, value]) => {
-            console.log(`      ${server}: ${value} ${testCase.result.unit}`);
-          });
+      suite.test_cases.forEach(testCase => {
+        console.log(`\n  Test Case: ${testCase.label}`);
+        console.log(`  Description: ${testCase.description}`);
+        console.log(`  Unit: ${testCase.unit}`);
+        
+        testCase.data.forEach(dataPoint => {
+          console.log(`    Category: ${dataPoint.category}`);
+          console.log(`      aidbox: ${dataPoint.aidbox} ${testCase.unit}`);
+          console.log(`      medplum: ${dataPoint.medplum} ${testCase.unit}`);
+          console.log(`      hapi: ${dataPoint.hapi} ${testCase.unit}`);
         });
       });
     });
@@ -94,41 +106,43 @@ export function typeSafeDataAccess(report: BenchmarkReport) {
   // TypeScript will provide full intellisense and type checking
   const firstSuite = report.suites[0];
   
-  if (firstSuite) {
+  if (firstSuite && firstSuite.result.data.length > 0) {
+    const firstDataPoint = firstSuite.result.data[0];
+    
     // Access server data with type safety
-    const aidboxPerformance = firstSuite.result.data.aidbox;
-    const medplumPerformance = firstSuite.result.data.medplum;
-    const hapiPerformance = firstSuite.result.data.hapi;
+    const aidboxPerformance = firstDataPoint.aidbox;
+    const medplumPerformance = firstDataPoint.medplum;
+    const hapiPerformance = firstDataPoint.hapi;
     
     console.log('Aidbox performance:', aidboxPerformance);
     console.log('Medplum performance:', medplumPerformance);
     console.log('Hapi performance:', hapiPerformance);
-    
-    // TypeScript will catch errors like:
-    // const invalidServer = firstSuite.result.data.invalidServer; // Error: Property 'invalidServer' does not exist
   }
 }
 
 // Utility function to compare server performance
 export function compareServerPerformance(report: BenchmarkReport, server1: string, server2: string) {
-  const results: { suite: string; server1: number; server2: number; difference: number; percentage: number }[] = [];
+  const results: { suite: string; category: string; server1: number; server2: number; difference: number; percentage: number }[] = [];
   
   report.suites.forEach(suite => {
-    const perf1 = suite.result.data[server1];
-    const perf2 = suite.result.data[server2];
-    
-    if (perf1 !== undefined && perf2 !== undefined) {
-      const difference = perf1 - perf2;
-      const percentage = (difference / perf2) * 100;
+    suite.result.data.forEach(dataPoint => {
+      const perf1 = dataPoint[server1 as keyof typeof dataPoint] as number;
+      const perf2 = dataPoint[server2 as keyof typeof dataPoint] as number;
       
-      results.push({
-        suite: suite.name,
-        server1: perf1,
-        server2: perf2,
-        difference,
-        percentage
-      });
-    }
+      if (perf1 !== undefined && perf2 !== undefined) {
+        const difference = perf1 - perf2;
+        const percentage = (difference / perf2) * 100;
+        
+        results.push({
+          suite: suite.name,
+          category: dataPoint.category,
+          server1: perf1,
+          server2: perf2,
+          difference,
+          percentage
+        });
+      }
+    });
   });
   
   return results;
@@ -144,15 +158,19 @@ export function createTypedReport(): TypedBenchmarkReport {
     suites: [
       {
         name: "CRUD",
-        description: "Create, Read, Update, Delete",
+        description: "Create, Read, Update, Delete operations",
         result: {
-          type: "Requests per second", // TypeScript will enforce this must be a valid ResultType
-          unit: "rps", // TypeScript will enforce this must be a valid UnitType
-          data: {
-            aidbox: 3200,
-            medplum: 1000,
-            hapi: 200
-          }
+          label: "Average requests per second. (Higher is better)",
+          description: "Some description",
+          unit: "RPS",
+          data: [
+            {
+              category: "CRUD",
+              aidbox: 3200,
+              medplum: 1000,
+              hapi: 200
+            }
+          ]
         },
         test_cases: []
       }
