@@ -43,7 +43,7 @@ export default function Home({ runs }: InferGetServerSidePropsType<typeof getSer
     <main className="max-w-7xl mx-auto px-6 py-8">
       <div className=" md:grid-cols-2 lg:grid-cols-3 gap-4">
         {runs.map((run) => (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2" key={run}>
             <Link href={`/report?runid=${run}`} className="text-blue-500">
               {run}
             </Link>

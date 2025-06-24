@@ -25,7 +25,7 @@ export function ReportBarChart({ result, size }: { result: BenchmarkResult, size
     if (size === "small") {
         className = `h-[120px] ${className}`
     } else {
-        className = `h-[300px] ${className}`
+        className = `min-h-[400px] ${className}`
     }
 
     return (
@@ -42,7 +42,7 @@ export function ReportBarChart({ result, size }: { result: BenchmarkResult, size
                     tickLine={false}
                     tickMargin={10}
                     className="text-sm font-bold"
-                    width={100}
+                    width={size === "small" ? 70 : 170}
                     axisLine={false}
                     tickFormatter={(value) => value}
                 />
@@ -59,8 +59,8 @@ export function ReportBarChart({ result, size }: { result: BenchmarkResult, size
                         key={key}
                         dataKey={key}
                         fill={`var(--color-${key})`}
-                        radius={4}
-                        barSize={24}
+                        radius={size === "small" ? 4 : 2}
+                        barSize={size === "small" ? 24 : 15}
                     >
                         <LabelList
                             dataKey={key}
@@ -68,7 +68,7 @@ export function ReportBarChart({ result, size }: { result: BenchmarkResult, size
                             position="insideRight"
                             fill="white"
                             offset={10}
-                            fontSize={12}
+                            fontSize={size === "small" ? 12 : 10}
                         />
                     </Bar>
                 ))}

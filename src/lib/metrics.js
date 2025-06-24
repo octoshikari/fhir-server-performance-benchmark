@@ -29,9 +29,13 @@
  * @property {PrometheusVectorData} data - The query result data
  */
 
-const PROMETHEUS_URL = process.env.METRICS_URL || 'http://localhost:13010'
+// const PROMETHEUS_URL = process.env.METRICS_URL || 'http://localhost:13010'
+const PROMETHEUS_URL = 'http://localhost:58345/'
 const USERNAME = process.env.METRICS_USERNAME
 const PASSWORD = process.env.METRICS_PASSWORD
+
+
+
 
 /**
  * Get headers for Prometheus API requests
