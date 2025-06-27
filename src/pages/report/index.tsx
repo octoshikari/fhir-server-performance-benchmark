@@ -4,6 +4,7 @@ import { BenchmarkReport } from "@/types/benchmark.types";
 import { parseBenchmarkReport } from "@/lib/benchmark-parser";
 import { Suite } from "@/components/Suite";
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
+import { ReportSummary } from "@/components/ReportSummary";
 
 
 export const getServerSideProps = (async (context) => {
@@ -48,7 +49,8 @@ export default function ReportPage({
     </header>
 
     {/* Main Content */}
-    <main className="max-w-7xl mx-auto px-6 py-8">
+    <main className="max-w-7xl mx-auto px-6">
+      <ReportSummary report={report} />
       {report.suites.map(suite => (
         <div key={suite.name} className="mb-12">
           <Suite  suite={suite} />

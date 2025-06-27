@@ -8,6 +8,7 @@ function getRuns() {
   const path = require('path')
   const reportsDir = path.join(process.cwd(), 'public/reports')
   return fs.readdirSync(reportsDir)
+    .filter(file => file.startsWith('SNAPSHOT_'))
     .map(file => file.replace('.json', ''))
     .sort((a, b) => b.localeCompare(a))
 }

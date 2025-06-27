@@ -1,0 +1,307 @@
+{
+  "runid": "2025-06-27T14:28:36.535Z",
+  "start_time": "2025-06-27T14:28:36.535Z",
+  "end_time": "2025-06-27T14:38:36.535Z",
+  "duration": 600000,
+  "suites": [
+    {
+      "name": "CRUD",
+      "description": "Create, Read, Update, Delete operations",
+      "result": {
+        "label": "Average requests per second. (Higher is better)",
+        "description": "Total requests per second across all CRUD operations",
+        "unit": "RPS",
+        "data": [
+          {
+            "category": "Total",
+            "aidbox": 3646,
+            "medplum": 1279,
+            "hapi": 3260
+          }
+        ]
+      },
+      "test_cases": [
+        {
+          "label": "Create resource latency (Lower is better)",
+          "description": "P99 in milliseconds per each resource type for create operations",
+          "unit": "MS",
+          "data": [
+            {
+              "category": "Claim",
+              "aidbox": 154,
+              "medplum": 683,
+              "hapi": 201
+            },
+            {
+              "category": "Encounter",
+              "aidbox": 145,
+              "medplum": 804,
+              "hapi": 203
+            },
+            {
+              "category": "ExplanationOfBenefit",
+              "aidbox": 161,
+              "medplum": 654,
+              "hapi": 204
+            },
+            {
+              "category": "Location",
+              "aidbox": 107,
+              "medplum": 587,
+              "hapi": 200
+            },
+            {
+              "category": "MedicationRequest",
+              "aidbox": 147,
+              "medplum": 721,
+              "hapi": 201
+            },
+            {
+              "category": "Observation",
+              "aidbox": 147,
+              "medplum": 810,
+              "hapi": 203
+            },
+            {
+              "category": "Organization",
+              "aidbox": 110,
+              "medplum": 577,
+              "hapi": 199
+            },
+            {
+              "category": "Patient",
+              "aidbox": 108,
+              "medplum": 935,
+              "hapi": 203
+            },
+            {
+              "category": "Practitioner",
+              "aidbox": 112,
+              "medplum": 676,
+              "hapi": 201
+            }
+          ]
+        },
+        {
+          "label": "Delete resource latency (Lower is better)",
+          "description": "P99 in milliseconds per each resource type for delete operations",
+          "unit": "MS",
+          "data": [
+            {
+              "category": "Claim",
+              "aidbox": 109,
+              "medplum": 479,
+              "hapi": 201
+            },
+            {
+              "category": "Encounter",
+              "aidbox": 108,
+              "medplum": 478,
+              "hapi": 201
+            },
+            {
+              "category": "ExplanationOfBenefit",
+              "aidbox": 160,
+              "medplum": 511,
+              "hapi": 202
+            },
+            {
+              "category": "Location",
+              "aidbox": 104,
+              "medplum": 475,
+              "hapi": 199
+            },
+            {
+              "category": "MedicationRequest",
+              "aidbox": 110,
+              "medplum": 474,
+              "hapi": 202
+            },
+            {
+              "category": "Observation",
+              "aidbox": 109,
+              "medplum": 489,
+              "hapi": 201
+            },
+            {
+              "category": "Organization",
+              "aidbox": 102,
+              "medplum": 455,
+              "hapi": 200
+            },
+            {
+              "category": "Patient",
+              "aidbox": 105,
+              "medplum": 548,
+              "hapi": 200
+            },
+            {
+              "category": "Practitioner",
+              "aidbox": 101,
+              "medplum": 474,
+              "hapi": 198
+            }
+          ]
+        },
+        {
+          "label": "Read resource latency (Lower is better)",
+          "description": "P99 in milliseconds per each resource type for read operations",
+          "unit": "MS",
+          "data": [
+            {
+              "category": "Claim",
+              "aidbox": 107,
+              "medplum": 355,
+              "hapi": 196
+            },
+            {
+              "category": "Encounter",
+              "aidbox": 116,
+              "medplum": 343,
+              "hapi": 195
+            },
+            {
+              "category": "ExplanationOfBenefit",
+              "aidbox": 108,
+              "medplum": 355,
+              "hapi": 197
+            },
+            {
+              "category": "Location",
+              "aidbox": 113,
+              "medplum": 339,
+              "hapi": 195
+            },
+            {
+              "category": "MedicationRequest",
+              "aidbox": 105,
+              "medplum": 308,
+              "hapi": 195
+            },
+            {
+              "category": "Observation",
+              "aidbox": 104,
+              "medplum": 301,
+              "hapi": 195
+            },
+            {
+              "category": "Organization",
+              "aidbox": 114,
+              "medplum": 325,
+              "hapi": 196
+            },
+            {
+              "category": "Patient",
+              "aidbox": 156,
+              "medplum": 389,
+              "hapi": 196
+            },
+            {
+              "category": "Practitioner",
+              "aidbox": 116,
+              "medplum": 317,
+              "hapi": 196
+            }
+          ]
+        },
+        {
+          "label": "Update resource latency (Lower is better)",
+          "description": "P99 in milliseconds per each resource type for update operations",
+          "unit": "MS",
+          "data": [
+            {
+              "category": "Claim",
+              "aidbox": 159,
+              "medplum": 702,
+              "hapi": 202
+            },
+            {
+              "category": "Encounter",
+              "aidbox": 151,
+              "medplum": 849,
+              "hapi": 202
+            },
+            {
+              "category": "ExplanationOfBenefit",
+              "aidbox": 165,
+              "medplum": 690,
+              "hapi": 204
+            },
+            {
+              "category": "Location",
+              "aidbox": 114,
+              "medplum": 630,
+              "hapi": 199
+            },
+            {
+              "category": "MedicationRequest",
+              "aidbox": 153,
+              "medplum": 754,
+              "hapi": 202
+            },
+            {
+              "category": "Observation",
+              "aidbox": 152,
+              "medplum": 807,
+              "hapi": 203
+            },
+            {
+              "category": "Organization",
+              "aidbox": 118,
+              "medplum": 630,
+              "hapi": 199
+            },
+            {
+              "category": "Patient",
+              "aidbox": 113,
+              "medplum": 682,
+              "hapi": 201
+            },
+            {
+              "category": "Practitioner",
+              "aidbox": 145,
+              "medplum": 768,
+              "hapi": 200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Import",
+      "description": "Bulk import operations",
+      "result": {
+        "label": "Average requests per second. (Higher is better)",
+        "description": "Total requests per second for import operations",
+        "unit": "RPS",
+        "data": [
+          {
+            "category": "Total",
+            "aidbox": 2,
+            "medplum": 0,
+            "hapi": 2
+          }
+        ]
+      },
+      "test_cases": []
+    },
+    {
+      "name": "FHIR Search",
+      "description": "Search operations",
+      "result": {
+        "label": "Average requests per second. (Higher is better)",
+        "description": "Total requests per second across all search operations",
+        "unit": "RPS",
+        "data": [
+          {
+            "category": "Total",
+            "aidbox": 235,
+            "medplum": 649,
+            "hapi": 257
+          }
+        ]
+      },
+      "test_cases": []
+    }
+  ]
+}

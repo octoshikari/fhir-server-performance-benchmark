@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react"
 import {
   Card,
   CardContent,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/card"
 import { BenchmarkSuite } from "@/types/benchmark.types"
 import { ReportBarChart } from "@/components/BarChart"
+import { SuiteSummary } from "@/components/ReportSummary"
 
 // Helper function to calculate average metrics from test case data
 function calculateAverageMetrics(testCase: any) {
@@ -25,11 +27,13 @@ function calculateAverageMetrics(testCase: any) {
 }
 
 export function Suite({ suite }: { suite: BenchmarkSuite }) {
+  const [expandedCards, setExpandedCards] = useState<{ [key: number]: boolean }>({})
+
   return (
-    <div>
+    <div >
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>{suite.name}</CardTitle>
+          <CardTitle>Suite: {suite.name}</CardTitle>
           <CardDescription>{suite.description}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -37,27 +41,48 @@ export function Suite({ suite }: { suite: BenchmarkSuite }) {
           <div className="text-sm text-gray-600">{suite.result.description}</div>
           <br />
           <ReportBarChart result={suite.result} size="small" />
-
         </CardContent>
-      </Card>
 
-      {suite.test_cases.length > 1 &&
-        suite.test_cases.map((testCase, index) => (
-          <div key={index} className="mt-4">
-            <Card>
-              <CardHeader className="border-b">
-                <CardTitle>{testCase.label}</CardTitle>
-                <CardDescription>{testCase.description}</CardDescription>
-              </CardHeader>
+      {suite.test_cases.length == 1 &&
+          suite.test_cases.map((testCase, index) => (
+            <div key={index} className="mt-12">
+              <div className="cursor-pointer hover:bg-gray-50 transition-colors mb-4 border-y px-6 py-4 border-gray-200" >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">Test Case: {testCase.label}</h3>
+                    <div className="text-sm text-gray-600">{testCase.description}</div>
+                  </div>
+                </div>
+              </div>
               <CardContent>
                 <ReportBarChart result={calculateAverageMetrics(testCase)} size="small" />
-                <br />
+              </CardContent>
+            </div>
+          ))
+      }
+
+
+      {suite.test_cases.length > 1 &&
+          suite.test_cases.map((testCase, index) => (
+            <div key={index} className="mt-12">
+              <div className="cursor-pointer hover:bg-gray-50 transition-colors mb-4 border-y px-6 py-4 border-gray-200" >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">Test Case: {testCase.label}</h3>
+                    <div className="text-sm text-gray-600">{testCase.description}</div>
+                  </div>
+                </div>
+              </div>
+              <CardContent>
+                <ReportBarChart result={calculateAverageMetrics(testCase)} size="small" />
                 <ReportBarChart result={testCase} size="big" />
               </CardContent>
-            </Card>
-          </div>
-        ))
+            </div>
+          ))
       }
+
+      </Card>
+
     </div>
   )
 }
