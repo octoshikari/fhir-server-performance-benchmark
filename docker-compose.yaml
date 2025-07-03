@@ -58,7 +58,6 @@ services:
   aidbox:
     container_name: perf-aidbox
     image: healthsamurai/aidboxone:edge
-    pull_policy: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -148,7 +147,6 @@ services:
       - /app/main.war
       - -Dloader.path=main.war!/WEB-INF/classes/,main.war!/WEB-INF/,/app/extra-classes
       - org.springframework.boot.loader.PropertiesLauncher
-    pull_policy: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -181,8 +179,8 @@ services:
       - global
 
   medplum-init:
+    container_name: perf-medplum-init
     image: medplum/medplum-server
-    pull_policy: always
     command:
       - file:/srv/config.json
     depends_on:
@@ -209,7 +207,6 @@ services:
 
   medplum:
     image: medplum/medplum-server
-    pull_policy: always
     command:
       - file:/srv/config.json
     deploy:

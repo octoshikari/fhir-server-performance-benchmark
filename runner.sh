@@ -45,29 +45,33 @@ show_usage() {
 bootstrap_services() {
     local max_attempts=5
     local attempt=1
-    
+
+    echo "Pulling docker images..."
+    echo "================================================"
+    docker compose pull aidbox hapi medplum
+
     echo "Starting Docker Compose services  (max $max_attempts attempts)..."
     echo "================================================"
-    
+
     while [ $attempt -le $max_attempts ]; do
         echo "Attempt $attempt/$max_attempts: Starting services..."
-        
+
         if docker compose up -d --wait; then
             echo "✅ Services started successfully on attempt $attempt!"
             echo "================================================"
             return 0
         else
             echo "❌ Attempt $attempt failed. Services may still be starting up..."
-            
+
             if [ $attempt -lt $max_attempts ]; then
                 echo "Waiting 10 seconds before retry..."
                 sleep 10
             fi
-            
+
             attempt=$((attempt + 1))
         fi
     done
-    
+
     echo "❌ Failed to start services after $max_attempts attempts"
     echo "================================================"
     return 1
@@ -96,10 +100,10 @@ run_test_on_server() {
     local k6_args="\
         --no-usage-report -o experimental-prometheus-rw \
         --tag runid=${run_id} --tag fhirimpl=${server}  "
-    
+
     echo "Running test: $test_path on server: $server with run ID: $run_id"
     echo "================================================"
-    
+
     case $server in
         "aidbox")
             run_env="${run_env}
