@@ -180,17 +180,11 @@ services:
     networks:
       - global
 
-  medplum:
+  medplum-init:
     image: medplum/medplum-server
     pull_policy: always
     command:
       - file:/srv/config.json
-    deploy:
-      replicas: 8
-      resources:
-        limits:
-          cpus: 1
-          memory: 1G
     depends_on:
       postgres:
         condition: service_healthy
@@ -210,7 +204,37 @@ services:
         ]
       start_period: 120s
       interval: 30s
-      timeout: 10s
+      timeout: 1s
+      retries: 10
+
+  medplum:
+    image: medplum/medplum-server
+    pull_policy: always
+    command:
+      - file:/srv/config.json
+    deploy:
+      replicas: 8
+      resources:
+        limits:
+          cpus: 1
+          memory: 1G
+    depends_on:
+      medplum-init:
+        condition: service_healthy
+    networks:
+      - global
+    volumes:
+      - ./infra/medplum:/srv
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
+        ]
+      interval: 10s
+      timeout: 1s
       retries: 10
 
   prometheus:
