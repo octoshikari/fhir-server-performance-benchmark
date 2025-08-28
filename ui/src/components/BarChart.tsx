@@ -64,7 +64,7 @@ export function ReportBarChart({ result, size }: { result: BenchmarkResult, size
                     >
                         <LabelList
                             dataKey={key}
-                            formatter={(value) => `${value} ${result.unit}`}
+                            formatter={(value: any) => `${value} ${result.unit}`}
                             position="insideRight"
                             fill="white"
                             offset={10}

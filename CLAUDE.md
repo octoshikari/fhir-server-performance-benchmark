@@ -106,3 +106,23 @@ Tests require specific environment variables depending on the target server:
 4. Test results are tagged with `runid` and `fhirimpl` for filtering
 5. The runner script handles server-specific configuration automatically
 6. Medplum requires OAuth2 authentication while Aidbox and HAPI use basic auth
+
+## GCS Bucket Configuration
+
+The benchmark reports are stored in a public Google Cloud Storage bucket: `gs://samurai-public/fhir-server-performance-benchmark/`
+
+### CORS Configuration Required
+
+For the UI to fetch reports directly from GCS, CORS must be configured on the bucket:
+
+```bash
+# Apply CORS configuration (one-time setup)
+gsutil cors set cors-config.json gs://samurai-public
+
+# Verify CORS configuration
+gsutil cors get gs://samurai-public
+```
+
+The `cors-config.json` file is included in the repository and allows GET requests from any origin.
+
+**Note**: Without proper CORS configuration, the UI will encounter "Failed to fetch" errors when trying to load reports from the GCS bucket.

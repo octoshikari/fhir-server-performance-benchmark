@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card"
 import { BenchmarkSuite } from "@/types/benchmark.types"
 import { ReportBarChart } from "@/components/BarChart"
-import { SuiteSummary } from "@/components/ReportSummary"
 
 // Helper function to calculate average metrics from test case data
 function calculateAverageMetrics(testCase: any) {

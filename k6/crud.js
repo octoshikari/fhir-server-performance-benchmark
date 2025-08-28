@@ -20,7 +20,7 @@ export const options = {
     crud: {
       executor: 'constant-vus',
       vus: 300,
-      duration: '1m',
+      duration: '5m',
       gracefulStop: '30s',
     },
   },

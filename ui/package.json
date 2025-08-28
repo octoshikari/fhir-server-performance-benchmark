@@ -6,12 +6,11 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "export": "next build && next export",
-    "build:static": "next build",
+    "build:gh-pages": "NEXT_PUBLIC_BASE_PATH=/fhir-server-performance-benchmark next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "deploy:gh-pages": "next build && touch out/.nojekyll && echo 'Custom domain optional' > out/CNAME"
+    "deploy:local": "npm run build:gh-pages && touch out/.nojekyll"
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.7",
