@@ -16,7 +16,7 @@ function parseArgs() {
     metricsUrl: process.env.METRICS_URL || 'http://localhost:13010',
     username: process.env.METRICS_USERNAME,
     password: process.env.METRICS_PASSWORD,
-    outputDir: path.join(process.cwd(), 'public', 'reports')
+    outputDir: path.join(process.cwd(), 'reports')
   }
 
   for (let i = 0; i < args.length; i++) {
@@ -77,7 +77,7 @@ Options:
   -a, --auth <user:pass>   Authentication credentials (user:password)
       --username <user>    Username for authentication
       --password <pass>    Password for authentication
-  -o, --output <dir>       Output directory for snapshot (default: ./public/reports)
+  -o, --output <dir>       Output directory for snapshot (default: ./reports)
   -h, --help              Show this help message
 
 Environment variables:

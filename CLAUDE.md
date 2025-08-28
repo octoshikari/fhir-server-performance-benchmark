@@ -46,22 +46,25 @@ docker compose down
 # /k6/import.js - Bulk import benchmark
 ```
 
-### Next.js Development
+### Next.js UI Development
 ```bash
+# Install UI dependencies
+npm run ui:install
+
 # Development server with Turbopack
-npm run dev
+npm run ui:dev
 
 # Build for production
-npm run build
+npm run ui:build
 
 # Start production server
-npm run start
+npm run ui:start
 
 # Run linting
-npm run lint
+npm run ui:lint
 
-# Run tests
-npm test
+# Run UI tests
+npm run ui:test
 ```
 
 ## Architecture
@@ -74,9 +77,10 @@ npm test
 - **docker-compose.yaml**: Defines all services including FHIR servers, monitoring stack, and databases
 
 ### Web Application (Next.js)
-- **src/pages/**: Next.js pages including main dashboard and report viewer
-- **src/components/**: React components for charts and UI elements
-- **src/lib/**: Core utilities for benchmark data processing and metrics calculation
+- **ui/**: Contains the entire Next.js web application
+  - **ui/src/pages/**: Next.js pages including main dashboard and report viewer
+  - **ui/src/components/**: React components for charts and UI elements
+  - **ui/src/lib/**: Core utilities for benchmark data processing and metrics calculation
   - `benchmark-converter.ts`: Converts K6 output to standardized format
   - `benchmark-parser.ts`: Parses benchmark results
   - `metrics.js`: Metrics aggregation logic

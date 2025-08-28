@@ -114,7 +114,7 @@ steps:
 
 - name: snapshot
   environment:
-    METRICS_URL: https://vm.cdr.aidbox.dev/api/v1/read
+    METRICS_URL: https://vm.cdr.aidbox.dev
     METRICS_USERNAME: vm
     METRICS_PASSWORD:
       from_secret: VMAUTH
@@ -142,7 +142,7 @@ steps:
   - export RUNID=$(cat /tmp/run-id/run-id)
   - echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/gcs-key.json
   - gcloud auth activate-service-account --key-file=/tmp/gcs-key.json
-  - gsutil -m cp -r public/reports/SNAPSHOT_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
-  - gsutil -m cp -r public/reports/SOURCE_DATA_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
+  - gsutil -m cp -r reports/SNAPSHOT_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
+  - gsutil -m cp -r reports/SOURCE_DATA_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
   - echo "Reports uploaded to GCS bucket samurai-public/fhir-server-performance-benchmark/"
   - rm /tmp/gcs-key.json

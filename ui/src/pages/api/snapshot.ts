@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { BenchmarkReport } from '@/types/benchmark.types'
 import { instantQuery } from '@/lib/metrics'
 import { convertSourceData } from '@/lib/benchmark-converter'
 
@@ -57,7 +56,7 @@ export default async function handler(
     const fs = require('fs')
     const path = require('path')
     
-    const reportsDir = path.join(process.cwd(), 'public', 'reports')
+    const reportsDir = path.join(process.cwd(), '..', 'reports')
     if (!fs.existsSync(reportsDir)) {
         fs.mkdirSync(reportsDir, { recursive: true })
     }
