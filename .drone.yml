@@ -7,7 +7,7 @@ node:
 volumes:
 - name: dockersock
   temp: {}
-- name: workspace
+- name: build
   temp: {}
 - name: perf-cache-image
   host:
@@ -83,7 +83,7 @@ steps:
   volumes:
   - name: dockersock
     path: /var/run
-  - name: workspace
+  - name: build
     path: /tmp/workspace
   commands:
 
@@ -122,7 +122,7 @@ steps:
   depends_on:
   - test
   volumes:
-  - name: workspace
+  - name: build
     path: /tmp/workspace
   commands:
   - export RUNID=$(cat /tmp/workspace/run-id)
@@ -136,7 +136,7 @@ steps:
   depends_on:
   - snapshot
   volumes:
-  - name: workspace
+  - name: build
     path: /tmp/workspace
   commands:
   - export RUNID=$(cat /tmp/workspace/run-id)
