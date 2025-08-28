@@ -62,6 +62,25 @@ jobs:
         env:
           NEXT_PUBLIC_BASE_PATH: /fhir-server-performance-benchmark
           
+      - name: Copy static files from public folder
+        run: |
+          # Copy any additional static files from public folder to out
+          # This ensures files like favicon, robots.txt, etc. are included
+          if [ -d "./ui/public" ]; then
+            cp -r ./ui/public/* ./ui/out/ 2>/dev/null || true
+            echo "✅ Static files copied from public folder"
+          else
+            echo "ℹ️ No public folder found, skipping static file copy"
+          fi
+          
+          # Create .nojekyll file to prevent GitHub Pages from processing files
+          touch ./ui/out/.nojekyll
+          echo "✅ Created .nojekyll file"
+          
+          # List output directory contents for verification
+          echo "📁 Output directory contents:"
+          ls -la ./ui/out/
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
