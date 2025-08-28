@@ -28,38 +28,25 @@ Open [http://localhost:13080](http://localhost:13080) and activate Aidbox.
 ## Coverage
 
 CRUD
+
 - [x] Create
-- [ ] Read
-- [ ] Update
-- [ ] Delete
+- [x] Read
+- [x] Update
+- [x] Delete
+
+Bulk import
+
+- [x] FHIR bundle
 
 Search
+
 - [ ] Simple search
 - [ ] Complex search
 - [ ] Full text search
 
 Validation
+
 - [ ] Schema validation
 - [ ] Terminology validation
 
-## Run environment
 
-```
-docker compose up
-```
-
-Activate aidbox http://localhost:8080
-
-
-## Run tests
-
-```
-docker compose run --name perf-k6 --rm k6
-```
-
-
-## Down environment
-
-```
-docker compose down -v
-```

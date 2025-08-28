@@ -7,7 +7,6 @@ networks:
 volumes:
   pgdata:
   promdata:
-  redisdata:
   tgzdata:
 
 services:
@@ -178,33 +177,6 @@ services:
     networks:
       - global
 
-  medplum-init:
-    container_name: perf-medplum-init
-    image: medplum/medplum-server
-    command:
-      - file:/srv/config.json
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - global
-    volumes:
-      - ./infra/medplum:/srv
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
-        ]
-      start_period: 120s
-      interval: 30s
-      timeout: 1s
-      retries: 10
-
   medplum:
     image: medplum/medplum-server
     command:
@@ -216,7 +188,7 @@ services:
           cpus: 1
           memory: 1G
     depends_on:
-      medplum-init:
+      postgres:
         condition: service_healthy
     networks:
       - global
@@ -283,8 +255,6 @@ services:
       retries: 5
     networks:
       - global
-    volumes:
-      - redisdata:/data
 
   tgz:
     container_name: perf-tgz

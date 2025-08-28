@@ -1,5 +1,5 @@
 import http from 'k6/http'
-import { check, group, sleep } from 'k6'
+import { check, group } from 'k6'
 
 import { jsonPatch, headers } from './util.js'
 

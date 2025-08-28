@@ -7,6 +7,8 @@ node:
 volumes:
 - name: dockersock
   temp: {}
+- name: run-id
+  temp: {}
 - name: perf-cache-image
   host:
     path: /tmp/perf-test-image-cache
@@ -81,21 +83,24 @@ steps:
   volumes:
   - name: dockersock
     path: /var/run
+  - name: run-id
+    path: /tmp/run-id
   commands:
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  - echo $RUNID > /tmp/run-id/run-id
 
   ## Run infra
   - ./runner.sh bootstrap
 
   ## Prewarm
-  - ./runner.sh -t /k6/prewarm.js
+  # - ./runner.sh -t /k6/prewarm.js
 
   ## Run tests
   - ./runner.sh -t /k6/crud.js
-  - ./runner.sh -t /k6/import.js
-  - ./runner.sh -t /k6/search.js
+  # - ./runner.sh -t /k6/import.js
+  # - ./runner.sh -t /k6/search.js
 
   ## Wait metrics tail
   - sleep 100
@@ -107,3 +112,18 @@ steps:
   ## Cleanup
   - docker compose down -v
 
+- name: snapshot
+  environment:
+    METRICS_URL: https://vm.cdr.aidbox.dev/api/v1/read
+    METRICS_USERNAME: vm
+    METRICS_PASSWORD:
+      from_secret: VMAUTH
+  image: node:24-alpine
+  depends_on:
+  - test
+  volumes:
+  - name: run-id
+    path: /tmp/run-id
+  commands:
+  - export RUNID=$(cat /tmp/run-id/run-id)
+  - npm run snapshot
