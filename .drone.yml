@@ -3,10 +3,10 @@ type: docker
 name: benchmark
 node:
   node: hz-cdr
-when:
-  branch:
-    exclude:
-    - github-pages
+
+trigger:
+  event:
+    exclude: [ promote ]
 
 volumes:
 - name: dockersock
