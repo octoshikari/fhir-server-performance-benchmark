@@ -10,10 +10,14 @@ import {
 } from "@/components/ui/card"
 import Image from "next/image"
 
+// Get base path from environment or use empty string for local dev
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+
+// Use absolute paths with base path for images
 const serverIcons = {
-  aidbox: "/images/aidbox.svg",
-  medplum: "/images/medplum.svg",
-  hapi: "/images/hapi.png"
+  aidbox: `${basePath}/images/aidbox.svg`,
+  medplum: `${basePath}/images/medplum.svg`,
+  hapi: `${basePath}/images/hapi.png`
 }
 
 function calculateServerStats(suites: BenchmarkSuite[]) {

@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   // Disable image optimization for static export
   images: {
     unoptimized: true,
+    // Allow loading images from the base path
+    remotePatterns: [],
   },
   
   // Handle trailing slashes
