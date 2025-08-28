@@ -7,7 +7,7 @@ node:
 volumes:
 - name: dockersock
   temp: {}
-- name: run-id
+- name: workspace
   temp: {}
 - name: perf-cache-image
   host:
@@ -83,13 +83,13 @@ steps:
   volumes:
   - name: dockersock
     path: /var/run
-  - name: run-id
-    path: /tmp/run-id
+  - name: workspace
+    path: /tmp/workspace
   commands:
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  - echo $RUNID > /tmp/run-id/run-id
+  - echo $RUNID > /tmp/workspace/run-id
 
   ## Run infra
   - ./runner.sh bootstrap
@@ -122,11 +122,11 @@ steps:
   depends_on:
   - test
   volumes:
-  - name: run-id
-    path: /tmp/run-id
+  - name: workspace
+    path: /tmp/workspace
   commands:
-  - export RUNID=$(cat /tmp/run-id/run-id)
-  - npm run snapshot
+  - export RUNID=$(cat /tmp/workspace/run-id)
+  - node scripts/generate-snapshot.js -o /tmp/workspace/reports
 
 - name: upload-to-gcs
   environment:
@@ -136,13 +136,13 @@ steps:
   depends_on:
   - snapshot
   volumes:
-  - name: run-id
-    path: /tmp/run-id
+  - name: workspace
+    path: /tmp/workspace
   commands:
-  - export RUNID=$(cat /tmp/run-id/run-id)
+  - export RUNID=$(cat /tmp/workspace/run-id)
   - echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/gcs-key.json
   - gcloud auth activate-service-account --key-file=/tmp/gcs-key.json
-  - gsutil -m cp -r reports/SNAPSHOT_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
-  - gsutil -m cp -r reports/SOURCE_DATA_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
+  - gsutil -m cp -r /tmp/workspace/reports/SNAPSHOT_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
+  - gsutil -m cp -r /tmp/workspace/reports/SOURCE_DATA_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
   - echo "Reports uploaded to GCS bucket samurai-public/fhir-server-performance-benchmark/"
   - rm /tmp/gcs-key.json

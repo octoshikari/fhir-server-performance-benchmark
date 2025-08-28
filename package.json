@@ -1,9 +1,0 @@
-{
-  "name": "fhir-server-performance-benchmark",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "snapshot": "node scripts/generate-snapshot.js"
-  }
-}
