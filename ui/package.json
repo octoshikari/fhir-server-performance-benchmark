@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "export": "next build && next export",
+    "build:static": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "deploy:gh-pages": "next build && touch out/.nojekyll && echo 'Custom domain optional' > out/CNAME"
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.7",

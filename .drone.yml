@@ -142,7 +142,7 @@ steps:
   - export RUNID=$(cat /tmp/workspace/run-id)
   - echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/gcs-key.json
   - gcloud auth activate-service-account --key-file=/tmp/gcs-key.json
-  - gsutil -m cp -r /tmp/workspace/reports/SNAPSHOT_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
-  - gsutil -m cp -r /tmp/workspace/reports/SOURCE_DATA_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
+  - gsutil -m cp -r "/tmp/workspace/reports/SNAPSHOT_${RUNID}.json" gs://samurai-public/fhir-server-performance-benchmark/
+  - gsutil -m cp -r "/tmp/workspace/reports/SOURCE_DATA_${RUNID}.json" gs://samurai-public/fhir-server-performance-benchmark/
   - echo "Reports uploaded to GCS bucket samurai-public/fhir-server-performance-benchmark/"
   - rm /tmp/gcs-key.json
