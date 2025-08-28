@@ -127,3 +127,22 @@ steps:
   commands:
   - export RUNID=$(cat /tmp/run-id/run-id)
   - npm run snapshot
+
+- name: upload-to-gcs
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS_JSON:
+      from_secret: BUCKET_KEY
+  image: google/cloud-sdk:alpine
+  depends_on:
+  - snapshot
+  volumes:
+  - name: run-id
+    path: /tmp/run-id
+  commands:
+  - export RUNID=$(cat /tmp/run-id/run-id)
+  - echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/gcs-key.json
+  - gcloud auth activate-service-account --key-file=/tmp/gcs-key.json
+  - gsutil -m cp -r public/reports/SNAPSHOT_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
+  - gsutil -m cp -r public/reports/SOURCE_DATA_${RUNID}.json gs://samurai-public/fhir-server-performance-benchmark/
+  - echo "Reports uploaded to GCS bucket samurai-public/fhir-server-performance-benchmark/"
+  - rm /tmp/gcs-key.json
