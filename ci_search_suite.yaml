@@ -208,7 +208,6 @@ services:
     networks:
       - global
     volumes:
-      - promdata:/prometheus
       - ./infra/prometheus/config.yaml:/etc/prometheus/prometheus.yml
 
   k6:
