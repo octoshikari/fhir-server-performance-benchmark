@@ -95,27 +95,27 @@ steps:
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   - echo $RUNID > /tmp/workspace/run-id
 
-  ## Run infra
-  - ./runner.sh bootstrap
-  - ./runner.sh bootstrap -f ci_search_suite.yaml -f docker-compose.override.yml
-
-  ## Prewarm
-  - ./runner.sh -t /k6/prewarm.js
-
-  ## Run tests
+  # ## Run infra for CRUD and import tests
+  # - ./runner.sh bootstrap
+  # ## Prewarm
+  # - ./runner.sh -t /k6/prewarm.js
+  # ## Run tests
   # - ./runner.sh -t /k6/crud.js
   # - ./runner.sh -t /k6/import.js
-  # - ./runner.sh -t /k6/search.js
+  # ## Cleanup
+  # - sleep 60
+  # - docker compose down -v
+  # ## ----------------------------------------------------
+
+  ## Run infra for search tests
+  - ./runner.sh bootstrap -f ci_search_suite.yaml -f docker-compose.override.yml
+  - ./runner.sh -t /k6/search.js -f ci_search_suite.yaml -f docker-compose.override.yml
+  ## Cleanup
+  - sleep 60
+  - docker compose down -v
+  ## ----------------------------------------------------
 
   ## Wait metrics tail
-  - sleep 60
-
-  ## TODO: make all reports
-  # - docker compose run --name perf-reporter --rm reporter
-  # - docker compose run --name perf-update-report --rm update-report
-
-  ## Cleanup
-  - docker compose down -v
 
 - name: snapshot
   environment:
