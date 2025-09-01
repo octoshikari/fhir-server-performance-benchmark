@@ -1,4 +1,4 @@
-name: perf
+name: search
 
 networks:
   global:
@@ -6,16 +6,14 @@ networks:
 
 volumes:
   pgdata:
-  promdata:
-  tgzdata:
+    host:
+      path: /var/data/storage/pgdata/perf-test-search
 
 services:
   postgres:
     container_name: perf-postgres
     image: postgres:17
     command: postgres -c config_file=/postgres.conf
-    ports:
-      - "13020:5432"
     deploy:
       resources:
         limits:
@@ -101,8 +99,6 @@ services:
       retries: 10
     networks:
       - global
-    ports:
-      - "13080:8080"
 
   cadvisor:
     container_name: perf-cadvisor
@@ -130,8 +126,6 @@ services:
       start_period: 30s
     networks:
       - global
-    ports:
-      - "13000:3000"
     volumes:
       - ./infra/grafana:/etc/grafana/provisioning:ro
 
@@ -156,8 +150,6 @@ services:
           memory: 8G
     networks:
       - global
-    ports:
-      - "13090:8080"
     volumes:
       - ./infra/hapi/application.yaml:/app/config/application.yaml:ro
 
@@ -218,8 +210,6 @@ services:
       test: wget -O - http://localhost:9090/-/ready
       interval: 5s
       start_period: 5s
-    ports:
-      - "13010:9090"
     networks:
       - global
     volumes:
@@ -264,8 +254,6 @@ services:
       - "https://storage.googleapis.com/aidbox-public/synthea/performance/bulk_1k.tar.gz"
     networks:
       - global
-    volumes:
-      - tgzdata:/data
     working_dir: /data
 
 

@@ -14,8 +14,8 @@ ALL_SERVERS="aidbox hapi medplum"
 
 # Function to display usage
 show_usage() {
-    echo "Usage: $0 [-t test] [-s server] [-id runId]"
-    echo "       $0 bootstrap"
+    echo "Usage: $0 [-t test] [-s server] [-id runId] [-f file1 -f file2 ...]"
+    echo "       $0 bootstrap [-f file1 -f file2 ...]"
     echo ""
     echo "Commands:"
     echo "  bootstrap  Start Docker Compose services"
@@ -24,12 +24,16 @@ show_usage() {
     echo "  -t test    Path to test file (e.g., /k6/crud.js, /k6/search.js)"
     echo "  -s server  Target server: aidbox, hapi, medplum"
     echo "  -id runId  Custom run ID (optional - defaults to current UTC timestamp)"
+    echo "  -f file    Docker Compose file(s) to use (can be specified multiple times)"
+    echo "             If not specified, uses the default docker-compose.yaml"
     echo ""
     echo "Examples:"
     echo "  $0 bootstrap                                    # Start services"
+    echo "  $0 bootstrap -f docker-compose.yaml -f docker-compose.prod.yaml  # Start with multiple compose files"
     echo "  $0 -t /k6/crud.js -s aidbox -id my-test-run     # Run CRUD test on Aidbox with custom ID"
     echo "  $0 -t /k6/search.js -s hapi                     # Run search test on HAPI with auto-generated ID"
     echo "  $0 -t /k6/prewarm.js                            # Run prewarm test on all servers"
+    echo "  $0 -t /k6/crud.js -f docker-compose.yaml -f override.yaml  # Run test with custom compose files"
     echo "  $0                                                # Run default test on all servers"
     echo ""
     echo "Available tests:"
@@ -48,7 +52,7 @@ bootstrap_services() {
 
     echo "Pulling docker images..."
     echo "================================================"
-    docker compose pull aidbox hapi medplum
+    docker compose $COMPOSE_FILES pull aidbox hapi medplum
 
     echo "Starting Docker Compose services  (max $max_attempts attempts)..."
     echo "================================================"
@@ -56,7 +60,7 @@ bootstrap_services() {
     while [ $attempt -le $max_attempts ]; do
         echo "Attempt $attempt/$max_attempts: Starting services..."
 
-        if docker compose up -d --wait; then
+        if docker compose $COMPOSE_FILES up -d --wait; then
             echo "✅ Services started successfully on attempt $attempt!"
             echo "================================================"
             return 0
@@ -126,9 +130,9 @@ run_test_on_server() {
     # TODO: quiet  for docker compose and k6
 
     if [ -n "$CI" ]; then
-        docker compose run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run --quiet $k6_args $test_path"
+        docker compose $COMPOSE_FILES run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run --quiet $k6_args $test_path"
     else
-        docker compose run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run $k6_args $test_path"
+        docker compose $COMPOSE_FILES run -q --rm --entrypoint /bin/sh k6 -c "$run_env && k6 run $k6_args $test_path"
     fi
 
     echo ""
@@ -142,6 +146,7 @@ run_test_on_server() {
 TEST_PATH=""
 SERVER=""
 RUN_ID=""
+COMPOSE_FILES=""
 
 # Check for help flag
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
@@ -149,8 +154,27 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     exit 0
 fi
 
-# Check for bootstrap command
+# Check for bootstrap command and collect compose files
 if [ "$1" = "bootstrap" ]; then
+    shift
+    # Parse remaining arguments for -f flags
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -f)
+                if [ -z "$COMPOSE_FILES" ]; then
+                    COMPOSE_FILES="-f $2"
+                else
+                    COMPOSE_FILES="$COMPOSE_FILES -f $2"
+                fi
+                shift 2
+                ;;
+            *)
+                echo "Unknown option for bootstrap: $1" >&2
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
     bootstrap_services
     exit 0
 fi
@@ -168,6 +192,14 @@ while [ $# -gt 0 ]; do
             ;;
         -id)
             RUN_ID="$2"
+            shift 2
+            ;;
+        -f)
+            if [ -z "$COMPOSE_FILES" ]; then
+                COMPOSE_FILES="-f $2"
+            else
+                COMPOSE_FILES="$COMPOSE_FILES -f $2"
+            fi
             shift 2
             ;;
         -h|--help)
