@@ -4,11 +4,6 @@ networks:
   global:
     driver: bridge
 
-volumes:
-  pgdata:
-    host:
-      path: /var/data/storage/pgdata/perf-test-search
-
 services:
   postgres:
     container_name: perf-postgres
@@ -29,7 +24,7 @@ services:
     networks:
       - global
     volumes:
-      - pgdata:/var/lib/postgresql/data:delegated
+      - /var/data/storage/pgdata/perf-test-search:/var/lib/postgresql/data:delegated
       - ./infra/postgres/init:/docker-entrypoint-initdb.d
       - ./infra/postgres/postgres.conf:/postgres.conf
 
