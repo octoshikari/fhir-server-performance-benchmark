@@ -24,7 +24,7 @@ services:
     networks:
       - global
     volumes:
-      - /var/data/storage/pgdata/perf-test-search:/var/lib/postgresql/data:delegated
+      - /var/lib/search-dataset:/var/lib/postgresql/data:delegated
       - ./infra/postgres/init:/docker-entrypoint-initdb.d
       - ./infra/postgres/postgres.conf:/postgres.conf
 

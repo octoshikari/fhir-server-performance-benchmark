@@ -19,6 +19,9 @@ volumes:
 - name: perf-cache-overlay
   host:
     path: /tmp/perf-test-overlay-cache
+- name: search-dataset
+  host:
+    path: /var/data/storage/pgdata/perf-test-search
 
 services:
 - name: dind
@@ -31,7 +34,8 @@ services:
     path: /var/lib/docker/image
   - name: perf-cache-overlay
     path: /var/lib/docker/overlay2
-
+  - name: search-dataset
+    path: /var/lib/search-dataset
 steps:
 - name: dind-ready
   image: docker:dind
@@ -89,6 +93,8 @@ steps:
     path: /var/run
   - name: build
     path: /tmp/workspace
+  - name: search-dataset
+    path: /var/lib/search-dataset
   commands:
 
   ## Setup RUNID
