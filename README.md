@@ -1,5 +1,7 @@
 # FHIR Server Performance Benchmark
 
+[Reports](https://healthsamurai.github.io/fhir-server-performance-benchmark)
+
 ## FHIR Server
 
 - Aidbox
