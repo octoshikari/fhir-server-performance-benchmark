@@ -153,7 +153,15 @@ steps:
   - export RUNID=$(cat /tmp/workspace/run-id)
   - echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/gcs-key.json
   - gcloud auth activate-service-account --key-file=/tmp/gcs-key.json
-  - gsutil -m cp -r "/tmp/workspace/reports/SNAPSHOT_$RUNID.json" gs://samurai-public/fhir-server-performance-benchmark/
-  - gsutil -m cp -r "/tmp/workspace/reports/SOURCE_DATA_$RUNID.json" gs://samurai-public/fhir-server-performance-benchmark/
-  - echo "Reports uploaded to GCS bucket samurai-public/fhir-server-performance-benchmark/"
+  - |
+    # Determine target path based on branch
+    if [ "${DRONE_BRANCH}" = "main" ]; then
+      TARGET_PATH="gs://samurai-public/fhir-server-performance-benchmark/"
+    else
+      TARGET_PATH="gs://samurai-public/fhir-server-performance-benchmark/${DRONE_BRANCH}/"
+    fi
+    echo "Uploading reports to: $TARGET_PATH"
+    gsutil -m cp -r "/tmp/workspace/reports/SNAPSHOT_$RUNID.json" "$TARGET_PATH"
+    gsutil -m cp -r "/tmp/workspace/reports/SOURCE_DATA_$RUNID.json" "$TARGET_PATH"
+    echo "Reports uploaded to GCS bucket at $TARGET_PATH"
   - rm /tmp/gcs-key.json
