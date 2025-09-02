@@ -31,17 +31,16 @@ const count = 100
 export default function({ baseUrl, params }) {
   group('text', () => {
     searchTest(baseUrl, 'Patient', `name=John&_count=${count}`, params)
-    // searchTest(baseUrl, 'Patient', `name=Undefined&_count=${count}`, params)
-    // searchTest(baseUrl, 'Patient', `name=Some_long_unexisting_string&_count=${count}`, params)
-    // searchTest(baseUrl, 'Patient', `name:contains=ohn&_count=${count}`, params)
-    // searchTest(baseUrl, 'Patient', `given:exact=Cathie710&_count=${count}`, params)
+    searchTest(baseUrl, 'Patient', `name=Undefined&_count=${count}`, params)
+    searchTest(baseUrl, 'Patient', `name=Some_long_unexisting_string&_count=${count}`, params)
+    searchTest(baseUrl, 'Patient', `name:contains=ohn&_count=${count}`, params)
   })
   group('date', () => {
     searchTest(baseUrl, 'Patient', `birthdate=2007-03-07&_count=${count}`, params)
-  //   searchTest(baseUrl, 'Patient', `birthdate=eq2007-03-07&_count=${count}`, params)
-  //   searchTest(baseUrl, 'Patient', `birthdate=ne2007-03-07&_count=${count}`, params)
-  //   searchTest(baseUrl, 'Patient', `birthdate=lt2007-03-07&_count=${count}`, params)
-  //   searchTest(baseUrl, 'Patient', `birthdate=gt2007-03-07&_count=${count}`, params)
+    searchTest(baseUrl, 'Patient', `birthdate=eq2007-03-07&_count=${count}`, params)
+    searchTest(baseUrl, 'Patient', `birthdate=ne2007-03-07&_count=${count}`, params)
+    searchTest(baseUrl, 'Patient', `birthdate=lt2007-03-07&_count=${count}`, params)
+    searchTest(baseUrl, 'Patient', `birthdate=gt2007-03-07&_count=${count}`, params)
   })
   // group('token', () => {
   //   searchTest(baseUrl, 'Observation', `code=29463-7&_count=${count}`, params)

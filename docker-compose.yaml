@@ -34,6 +34,31 @@ services:
       - pgdata:/var/lib/postgresql/data:delegated
       - ./infra/postgres/init:/docker-entrypoint-initdb.d
       - ./infra/postgres/postgres.conf:/postgres.conf
+  aidbox-indexer:
+    container_name: perf-aidbox-idx
+    depends_on:
+      aidbox:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    image: postgres:17
+    command:
+      - bash
+      - -c
+      - |
+        psql -v ON_ERROR_STOP=1 <<-EOF
+          -- Organization indexes
+          CREATE INDEX CONCURRENTLY IF NOT EXISTS "organization_resource" ON "organization" USING gin (resource jsonb_ops);
+          -- Location indexes
+          CREATE INDEX CONCURRENTLY IF NOT EXISTS "location_resource" ON "location" USING gin (resource jsonb_ops);
+        EOF
+    environment:
+      PGDATABASE: aidbox
+      PGHOST: postgres
+      PGPASSWORD: postgres
+      PGUSER: postgres
+    networks:
+      - global
 
   postgres-exporter:
     container_name: perf-postgres-exporter
