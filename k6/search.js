@@ -7,7 +7,7 @@ export const options = {
     search: {
       executor: 'constant-vus',
       vus: 10,
-      duration: '1m',
+      duration: '5m',
       gracefulStop: '30s',
     },
   },
@@ -36,13 +36,13 @@ export default function({ baseUrl, params }) {
     // searchTest(baseUrl, 'Patient', `name:contains=ohn&_count=${count}`, params)
     // searchTest(baseUrl, 'Patient', `given:exact=Cathie710&_count=${count}`, params)
   })
-  // group('date', () => {
-  //   searchTest(baseUrl, 'Patient', `birthdate=2007-03-07&_count=${count}`, params)
+  group('date', () => {
+    searchTest(baseUrl, 'Patient', `birthdate=2007-03-07&_count=${count}`, params)
   //   searchTest(baseUrl, 'Patient', `birthdate=eq2007-03-07&_count=${count}`, params)
   //   searchTest(baseUrl, 'Patient', `birthdate=ne2007-03-07&_count=${count}`, params)
   //   searchTest(baseUrl, 'Patient', `birthdate=lt2007-03-07&_count=${count}`, params)
   //   searchTest(baseUrl, 'Patient', `birthdate=gt2007-03-07&_count=${count}`, params)
-  // })
+  })
   // group('token', () => {
   //   searchTest(baseUrl, 'Observation', `code=29463-7&_count=${count}`, params)
   //   searchTest(baseUrl, 'Observation', `code=http://loinc.org|29463-7&_count=${count}`, params)
