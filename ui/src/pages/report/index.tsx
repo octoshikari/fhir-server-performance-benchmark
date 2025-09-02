@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from 'next/navigation'
@@ -9,6 +11,7 @@ import { ReportSummary } from "@/components/ReportSummary";
 export default function ReportPage() {
   const searchParams = useSearchParams();
   const runid = searchParams?.get('runid') || null;
+  const branch = searchParams?.get('branch') || 'main';
   
   const [report, setReport] = useState<BenchmarkReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -16,20 +19,24 @@ export default function ReportPage() {
 
   useEffect(() => {
     if (runid) {
-      fetchReportFromGCS(runid);
+      fetchReportFromGCS(runid, branch);
     } else {
       setLoading(false);
       setError('No run ID provided');
     }
-  }, [runid]);
+  }, [runid, branch]);
 
-  const fetchReportFromGCS = async (runId: string) => {
+  const fetchReportFromGCS = async (runId: string, branchName: string) => {
     try {
       setLoading(true);
       setError(null);
       
       // Direct URL to the report file in GCS public bucket
-      const reportUrl = `https://storage.googleapis.com/samurai-public/fhir-server-performance-benchmark/SNAPSHOT_${runId}.json`;
+      // Adjust path based on branch
+      const basePath = branchName === 'main' 
+        ? 'fhir-server-performance-benchmark'
+        : `fhir-server-performance-benchmark/${branchName}`;
+      const reportUrl = `https://storage.googleapis.com/samurai-public/${basePath}/SNAPSHOT_${runId}.json`;
       
       // Try to fetch directly first
       let response: Response | null = null;
@@ -37,9 +44,14 @@ export default function ReportPage() {
       
       try {
         response = await fetch(reportUrl);
+        // Try to read the response to check for CORS issues
+        const reportData = await response.text();
+        const parsedReport = parseBenchmarkReport(reportData);
+        setReport(parsedReport);
+        return; // Success, exit early
       } catch (corsError) {
         // If direct fetch fails (likely CORS), try with a public CORS proxy for development
-        console.warn('Direct fetch failed, likely due to CORS. Trying proxy for development...');
+        console.warn('Direct fetch failed, likely due to CORS. Trying proxy for development...', corsError);
         
         // Use a public CORS proxy for development only
         // In production, the bucket should have proper CORS configured
@@ -49,26 +61,20 @@ export default function ReportPage() {
           response = await fetch(proxyUrl);
           usedProxy = true;
           console.log('Successfully fetched via CORS proxy (development mode)');
+          
+          const reportData = await response.text();
+          const parsedReport = parseBenchmarkReport(reportData);
+          setReport(parsedReport);
+          
+          // Show a warning if proxy was used
+          if (usedProxy && typeof window !== 'undefined') {
+            console.warn('⚠️ Report loaded via CORS proxy. For production, configure CORS on the GCS bucket.');
+          }
+          return;
         } catch (proxyError) {
           console.error('Proxy fetch also failed:', proxyError);
           throw new Error('Unable to fetch report. CORS is blocking access. For production, configure CORS on the GCS bucket.');
         }
-      }
-      
-      if (!response || !response.ok) {
-        if (response?.status === 404) {
-          throw new Error(`Report not found for run ID: ${runId}`);
-        }
-        throw new Error(`Failed to fetch report: ${response?.status || 'Unknown error'}`);
-      }
-
-      const reportData = await response.text();
-      const parsedReport = parseBenchmarkReport(reportData);
-      setReport(parsedReport);
-      
-      // Show a warning if proxy was used
-      if (usedProxy && typeof window !== 'undefined') {
-        console.warn('⚠️ Report loaded via CORS proxy. For production, configure CORS on the GCS bucket.');
       }
     } catch (err) {
       console.error('Error fetching report:', err);
@@ -85,10 +91,20 @@ export default function ReportPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <Link href="/" className="text-blue-500"> ← Back to all reports</Link>
+              <Link 
+                href={branch !== 'main' ? `/?branch=${branch}` : '/'} 
+                className="text-blue-500"
+              >
+                ← Back to all reports
+              </Link>
               <h1 className="text-2xl font-bold text-gray-900">
                 Performance Benchmark Report
               </h1>
+              {branch !== 'main' && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Branch: <span className="font-medium">{branch}</span>
+                </p>
+              )}
             </div>
             {report && (
               <div className="flex items-center space-x-4">
@@ -118,7 +134,10 @@ export default function ReportPage() {
             <p className="font-medium">Error loading report</p>
             <p className="text-sm mt-1">{error}</p>
             <div className="mt-4">
-              <Link href="/" className="text-sm text-red-700 underline hover:no-underline">
+              <Link 
+                href={branch !== 'main' ? `/?branch=${branch}` : '/'} 
+                className="text-sm text-red-700 underline hover:no-underline"
+              >
                 Return to reports list
               </Link>
             </div>
