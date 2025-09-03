@@ -19,6 +19,9 @@ volumes:
 - name: perf-cache-overlay
   host:
     path: /tmp/perf-test-overlay-cache
+- name: search-dataset
+  host:
+    path: /var/data/storage/pgdata/perf-test-search
 
 services:
 - name: dind
@@ -31,7 +34,8 @@ services:
     path: /var/lib/docker/image
   - name: perf-cache-overlay
     path: /var/lib/docker/overlay2
-
+  - name: search-dataset
+    path: /var/lib/search-dataset
 steps:
 - name: dind-ready
   image: docker:dind
@@ -89,32 +93,35 @@ steps:
     path: /var/run
   - name: build
     path: /tmp/workspace
+  - name: search-dataset
+    path: /var/lib/search-dataset
   commands:
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   - echo $RUNID > /tmp/workspace/run-id
 
-  ## Run infra
+  ## Run infra for CRUD and Import tests
   - ./runner.sh bootstrap
-
   ## Prewarm
   - ./runner.sh -t /k6/prewarm.js
-
   ## Run tests
   - ./runner.sh -t /k6/crud.js
   - ./runner.sh -t /k6/import.js
-  - ./runner.sh -t /k6/search.js
+  ## Cleanup
+  - sleep 120
+  - docker compose down -v
+  ## ----------------------------------------------------
+
+  ## Run infra for search tests
+  - ./runner.sh bootstrap -f ci_search_suite.yaml -f docker-compose.override.yml
+  - ./runner.sh -t /k6/search.js -f ci_search_suite.yaml -f docker-compose.override.yml
+  ## Cleanup
+  - sleep 120
+  - docker compose down -v
+  ## ----------------------------------------------------
 
   ## Wait metrics tail
-  - sleep 60
-
-  ## TODO: make all reports
-  # - docker compose run --name perf-reporter --rm reporter
-  # - docker compose run --name perf-update-report --rm update-report
-
-  ## Cleanup
-  - docker compose down -v
 
 - name: snapshot
   environment:
@@ -146,7 +153,15 @@ steps:
   - export RUNID=$(cat /tmp/workspace/run-id)
   - echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/gcs-key.json
   - gcloud auth activate-service-account --key-file=/tmp/gcs-key.json
-  - gsutil -m cp -r "/tmp/workspace/reports/SNAPSHOT_$RUNID.json" gs://samurai-public/fhir-server-performance-benchmark/
-  - gsutil -m cp -r "/tmp/workspace/reports/SOURCE_DATA_$RUNID.json" gs://samurai-public/fhir-server-performance-benchmark/
-  - echo "Reports uploaded to GCS bucket samurai-public/fhir-server-performance-benchmark/"
+  - |
+    # Determine target path based on branch
+    if [ "${DRONE_BRANCH}" = "main" ]; then
+      TARGET_PATH="gs://samurai-public/fhir-server-performance-benchmark/"
+    else
+      TARGET_PATH="gs://samurai-public/fhir-server-performance-benchmark/${DRONE_BRANCH}/"
+    fi
+    echo "Uploading reports to: $TARGET_PATH"
+    gsutil -m cp -r "/tmp/workspace/reports/SNAPSHOT_$RUNID.json" "$TARGET_PATH"
+    gsutil -m cp -r "/tmp/workspace/reports/SOURCE_DATA_$RUNID.json" "$TARGET_PATH"
+    echo "Reports uploaded to GCS bucket at $TARGET_PATH"
   - rm /tmp/gcs-key.json

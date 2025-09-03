@@ -28,6 +28,21 @@ function calculateAverageMetrics(testCase: any) {
 export function Suite({ suite }: { suite: BenchmarkSuite }) {
   const [expandedCards, setExpandedCards] = useState<{ [key: number]: boolean }>({})
 
+  // Don't render if test_cases is empty
+  if (!suite.test_cases || suite.test_cases.length === 0) {
+    return null;
+  }
+
+  // Check if all servers return 0 in the result data
+  const hasValidData = suite.result?.data?.some((dataPoint: any) => 
+    dataPoint.aidbox !== 0 || dataPoint.medplum !== 0 || dataPoint.hapi !== 0
+  );
+
+  // Don't render if all values are 0
+  if (!hasValidData) {
+    return null;
+  }
+
   return (
     <div >
       <Card>

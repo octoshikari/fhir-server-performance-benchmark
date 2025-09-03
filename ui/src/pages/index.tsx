@@ -1,14 +1,91 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { BranchSelector } from "@/components/BranchSelector";
 
 export default function Home() {
+  const router = useRouter();
   const [runs, setRuns] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedBranch, setSelectedBranch] = useState<string>('main');
+  const [availableBranches, setAvailableBranches] = useState<string[]>(['main']);
+
+  useEffect(() => {
+    // Read branch from URL on initial load
+    if (router.isReady) {
+      const branchFromUrl = router.query.branch as string;
+      if (branchFromUrl) {
+        setSelectedBranch(branchFromUrl);
+      }
+      fetchAvailableBranches();
+    }
+  }, [router.isReady, router.query]);
 
   useEffect(() => {
     fetchReportsFromGCS();
-  }, []);
+  }, [selectedBranch]);
+
+  const handleBranchChange = (branch: string) => {
+    setSelectedBranch(branch);
+    // Update URL with branch query parameter
+    const url = new URL(window.location.href);
+    if (branch === 'main') {
+      url.searchParams.delete('branch');
+    } else {
+      url.searchParams.set('branch', branch);
+    }
+    router.push(url.pathname + url.search, undefined, { shallow: true });
+  };
+
+  const fetchAvailableBranches = async () => {
+    try {
+      // Fetch all folders/prefixes to identify branches
+      const bucketUrl = 'https://storage.googleapis.com/storage/v1/b/samurai-public/o';
+      const params = new URLSearchParams({
+        prefix: 'fhir-server-performance-benchmark/',
+        delimiter: '/',
+        fields: 'prefixes',
+      });
+
+      const apiUrl = `${bucketUrl}?${params}`;
+      let response: Response | null = null;
+      
+      try {
+        response = await fetch(apiUrl);
+      } catch (corsError) {
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+        try {
+          response = await fetch(proxyUrl);
+        } catch (proxyError) {
+          console.error('Could not fetch branches:', proxyError);
+        }
+      }
+      
+      if (response && response.ok) {
+        const data = await response.json();
+        if (data.prefixes && Array.isArray(data.prefixes)) {
+          // Extract branch names from prefixes
+          const branches = data.prefixes
+            .map((prefix: string) => {
+              const match = prefix.match(/fhir-server-performance-benchmark\/([^\/]+)\/$/);
+              return match ? match[1] : null;
+            })
+            .filter((branch: string | null) => branch !== null);
+          
+          // Always include 'main' and combine with found branches
+          const allBranches = ['main', ...branches.filter((b: string) => b !== 'main')];
+          setAvailableBranches(allBranches);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching branches:', err);
+      // Default to just main if we can't fetch branches
+      setAvailableBranches(['main']);
+    }
+  };
 
   const fetchReportsFromGCS = async () => {
     try {
@@ -18,8 +95,13 @@ export default function Home() {
       // GCS public bucket URL for listing objects
       // Using the JSON API to list objects in the bucket
       const bucketUrl = 'https://storage.googleapis.com/storage/v1/b/samurai-public/o';
+      // Adjust prefix based on selected branch
+      const prefix = selectedBranch === 'main' 
+        ? 'fhir-server-performance-benchmark/SNAPSHOT_'
+        : `fhir-server-performance-benchmark/${selectedBranch}/SNAPSHOT_`;
+      
       const params = new URLSearchParams({
-        prefix: 'fhir-server-performance-benchmark/SNAPSHOT_',
+        prefix: prefix,
         maxResults: '30',
         fields: 'items(name,timeCreated)',
       });
@@ -119,6 +201,11 @@ export default function Home() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
+              <BranchSelector
+                selectedBranch={selectedBranch}
+                onBranchChange={handleBranchChange}
+                availableBranches={availableBranches}
+              />
               <button
                 onClick={fetchReportsFromGCS}
                 disabled={loading}
@@ -168,7 +255,7 @@ export default function Home() {
                 Available benchmark reports
               </h2>
               <p className="text-sm text-gray-600 mt-1">
-                Showing {runs.length} most recent reports
+                Showing {runs.length} most recent reports from {selectedBranch} branch
               </p>
             </div>
             
@@ -176,7 +263,7 @@ export default function Home() {
               {runs.map((run) => (
                 <Link
                   key={run}
-                  href={`/report?runid=${run}`}
+                  href={`/report?runid=${run}&branch=${selectedBranch}`}
                   className="block p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center justify-between">

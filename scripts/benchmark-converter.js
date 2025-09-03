@@ -196,7 +196,7 @@ export function convertSourceToBenchmarkReport(
             // Create test cases for each operation
             for (const [operation, resourceGroups] of groupedMetrics) {
                 const testCase = {
-                    label: `${operation.charAt(0).toUpperCase() + operation.slice(1)} resource latency (Lower is better)`,
+                    label: `${operation.charAt(0).toUpperCase() + operation.slice(1)} search latency (Lower is better)`,
                     description: `P99 in milliseconds per each resource type for ${operation} operations`,
                     unit: 'MS',
                     data: createBenchmarkDataPoints(resourceGroups)
