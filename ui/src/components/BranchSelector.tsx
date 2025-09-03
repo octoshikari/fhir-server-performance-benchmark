@@ -11,7 +11,7 @@ interface BranchSelectorProps {
 export const BranchSelector: React.FC<BranchSelectorProps> = ({
   selectedBranch,
   onBranchChange,
-  availableBranches = ['main', 'search-suite', 'performance-improvements', 'feature-test']
+  availableBranches = ['main']
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

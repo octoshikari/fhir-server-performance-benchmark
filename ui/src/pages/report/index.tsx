@@ -38,44 +38,18 @@ export default function ReportPage() {
         : `fhir-server-performance-benchmark/${branchName}`;
       const reportUrl = `https://storage.googleapis.com/samurai-public/${basePath}/SNAPSHOT_${runId}.json`;
       
-      // Try to fetch directly first
-      let response: Response | null = null;
-      let usedProxy = false;
+      const response = await fetch(reportUrl);
       
-      try {
-        response = await fetch(reportUrl);
-        // Try to read the response to check for CORS issues
-        const reportData = await response.text();
-        const parsedReport = parseBenchmarkReport(reportData);
-        setReport(parsedReport);
-        return; // Success, exit early
-      } catch (corsError) {
-        // If direct fetch fails (likely CORS), try with a public CORS proxy for development
-        console.warn('Direct fetch failed, likely due to CORS. Trying proxy for development...', corsError);
-        
-        // Use a public CORS proxy for development only
-        // In production, the bucket should have proper CORS configured
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(reportUrl)}`;
-        
-        try {
-          response = await fetch(proxyUrl);
-          usedProxy = true;
-          console.log('Successfully fetched via CORS proxy (development mode)');
-          
-          const reportData = await response.text();
-          const parsedReport = parseBenchmarkReport(reportData);
-          setReport(parsedReport);
-          
-          // Show a warning if proxy was used
-          if (usedProxy && typeof window !== 'undefined') {
-            console.warn('⚠️ Report loaded via CORS proxy. For production, configure CORS on the GCS bucket.');
-          }
-          return;
-        } catch (proxyError) {
-          console.error('Proxy fetch also failed:', proxyError);
-          throw new Error('Unable to fetch report. CORS is blocking access. For production, configure CORS on the GCS bucket.');
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(`Report not found for run ID: ${runId}`);
         }
+        throw new Error(`Failed to fetch report: ${response.status}`);
       }
+
+      const reportData = await response.text();
+      const parsedReport = parseBenchmarkReport(reportData);
+      setReport(parsedReport);
     } catch (err) {
       console.error('Error fetching report:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch report');

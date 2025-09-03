@@ -30,14 +30,17 @@ export default function Home() {
 
   const handleBranchChange = (branch: string) => {
     setSelectedBranch(branch);
-    // Update URL with branch query parameter
-    const url = new URL(window.location.href);
+    // Update only query parameters, keep the same path
+    const query = { ...router.query };
     if (branch === 'main') {
-      url.searchParams.delete('branch');
+      delete query.branch;
     } else {
-      url.searchParams.set('branch', branch);
+      query.branch = branch;
     }
-    router.push(url.pathname + url.search, undefined, { shallow: true });
+    router.push({
+      pathname: router.pathname,
+      query: query
+    }, undefined, { shallow: true });
   };
 
   const fetchAvailableBranches = async () => {
@@ -51,20 +54,9 @@ export default function Home() {
       });
 
       const apiUrl = `${bucketUrl}?${params}`;
-      let response: Response | null = null;
+      const response = await fetch(apiUrl);
       
-      try {
-        response = await fetch(apiUrl);
-      } catch (corsError) {
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
-        try {
-          response = await fetch(proxyUrl);
-        } catch (proxyError) {
-          console.error('Could not fetch branches:', proxyError);
-        }
-      }
-      
-      if (response && response.ok) {
+      if (response.ok) {
         const data = await response.json();
         if (data.prefixes && Array.isArray(data.prefixes)) {
           // Extract branch names from prefixes
@@ -107,33 +99,10 @@ export default function Home() {
       });
 
       const apiUrl = `${bucketUrl}?${params}`;
-      let response: Response | null = null;
-      let usedProxy = false;
-
-      try {
-        response = await fetch(apiUrl);
-      } catch (corsError) {
-        // If direct fetch fails (likely CORS), try with a public CORS proxy for development
-        console.warn('Direct fetch failed, likely due to CORS. Trying proxy for development...');
-        
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
-        
-        try {
-          response = await fetch(proxyUrl);
-          usedProxy = true;
-          console.log('Successfully fetched report list via CORS proxy (development mode)');
-        } catch (proxyError) {
-          console.error('Proxy fetch also failed:', proxyError);
-          throw new Error('Unable to fetch report list. CORS is blocking access.');
-        }
-      }
+      const response = await fetch(apiUrl);
       
-      if (!response || !response.ok) {
-        throw new Error(`Failed to fetch reports: ${response?.status || 'Unknown error'}`);
-      }
-      
-      if (usedProxy && typeof window !== 'undefined') {
-        console.warn('⚠️ Report list loaded via CORS proxy. For production, configure CORS on the GCS bucket.');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch reports: ${response.status}`);
       }
 
       const data = await response.json();
