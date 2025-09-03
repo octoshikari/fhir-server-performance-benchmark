@@ -58,24 +58,6 @@ steps:
     fi
     echo "Docker daemon is ready"
 
-- name: gcp-auth
-  image: google/cloud-sdk:518.0.0
-  depends_on:
-  - dind-ready
-  volumes:
-  - name: dockersock
-    path: /var/run
-  pull: if-not-exists
-  environment:
-    DRONE_CI_GCP_SA:
-      from_secret: DRONE_CI_GCP_SA
-  commands:
-    - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
-    - gcloud auth activate-service-account --key-file=/tmp/key.json
-    - gcloud auth configure-docker us-east1-docker.pkg.dev
-    - rm /tmp/key.json
-    - docker pull us-east1-docker.pkg.dev/aidbox2-205511/aidbox/aidboxone:git-18c39033ba59c7bc3e498c417d64436b68581621
-
 - name: configure
   image: alpine:latest
   environment:
@@ -105,8 +87,10 @@ steps:
   depends_on:
   - configure
   - dind-ready
-  - gcp-auth
-  image: docker:dind
+  image: google/cloud-sdk:518.0.0
+  environment:
+    DRONE_CI_GCP_SA:
+      from_secret: DRONE_CI_GCP_SA
   volumes:
   - name: dockersock
     path: /var/run
@@ -115,6 +99,11 @@ steps:
   - name: search-dataset
     path: /var/lib/search-dataset
   commands:
+  ## GCP auth
+  - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
+  - gcloud auth activate-service-account --key-file=/tmp/key.json
+  - gcloud auth configure-docker us-east1-docker.pkg.dev
+  - rm /tmp/key.json
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
