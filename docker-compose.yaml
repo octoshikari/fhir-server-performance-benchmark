@@ -51,7 +51,14 @@ services:
           CREATE INDEX CONCURRENTLY IF NOT EXISTS "organization_resource" ON "organization" USING gin (resource jsonb_ops);
           -- Location indexes
           CREATE INDEX CONCURRENTLY IF NOT EXISTS "location_resource" ON "location" USING gin (resource jsonb_ops);
+          -- Practitioner indexes
+          CREATE INDEX CONCURRENTLY IF NOT EXISTS "practitioner_resource" ON "practitioner" USING gin (resource jsonb_ops);
+          -- PractitionerRole indexes
+          CREATE INDEX CONCURRENTLY IF NOT EXISTS "practitionerrole_resource" ON "practitionerrole" USING gin (resource jsonb_ops);
         EOF
+        echo "Indexes created successfully"
+        # Keep container running
+        sleep infinity
     environment:
       PGDATABASE: aidbox
       PGHOST: postgres
