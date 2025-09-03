@@ -111,6 +111,7 @@ steps:
   - gcloud auth configure-docker us-east1-docker.pkg.dev
   - rm /tmp/key.json
 
+  - sleep 10000000
   - docker compose up aidbox postgres
 
   ## Setup RUNID
