@@ -99,6 +99,10 @@ steps:
   - name: search-dataset
     path: /var/lib/search-dataset
   commands:
+  ## Install Docker Compose
+  - apt-get update && apt-get install -y docker-compose-plugin
+  - docker compose version
+
   ## GCP auth
   - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
   - gcloud auth activate-service-account --key-file=/tmp/key.json
