@@ -101,7 +101,7 @@ steps:
   commands:
   ## Install Docker Compose as Docker CLI plugin
   - mkdir -p /usr/local/lib/docker/cli-plugins
-  - curl -SL https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+  - curl -SL https://github.com/docker/compose/releases/download/v2.39.2/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
   - chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
   - docker compose version
 
@@ -110,9 +110,6 @@ steps:
   - gcloud auth activate-service-account --key-file=/tmp/key.json
   - gcloud auth configure-docker us-east1-docker.pkg.dev
   - rm /tmp/key.json
-
-  - sleep 10000000
-  - docker compose up aidbox postgres
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
