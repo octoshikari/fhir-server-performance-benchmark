@@ -5,6 +5,7 @@ networks:
     driver: bridge
 
 volumes:
+  pgdata:
   promdata:
   tgzdata:
 
@@ -30,7 +31,7 @@ services:
     networks:
       - global
     volumes:
-      # - pgdata:/var/lib/postgresql/data:delegated
+      - pgdata:/var/lib/postgresql/data:delegated
       - ./infra/postgres/init:/docker-entrypoint-initdb.d
       - ./infra/postgres/postgres.conf:/postgres.conf
   aidbox-indexer:
@@ -87,7 +88,7 @@ services:
 
   aidbox:
     container_name: perf-aidbox
-    image: us-east1-docker.pkg.dev/aidbox2-205511/aidbox/aidboxone:git-18c39033ba59c7bc3e498c417d64436b68581621
+    image: healthsamurai/aidboxone:edge
     depends_on:
       postgres:
         condition: service_healthy
