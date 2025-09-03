@@ -101,17 +101,17 @@ steps:
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   - echo $RUNID > /tmp/workspace/run-id
 
-  # ## Run infra for CRUD and import tests
-  # - ./runner.sh bootstrap
-  # ## Prewarm
-  # - ./runner.sh -t /k6/prewarm.js
-  # ## Run tests
-  # - ./runner.sh -t /k6/crud.js
-  # - ./runner.sh -t /k6/import.js
-  # ## Cleanup
-  # - sleep 60
-  # - docker compose down -v
-  # ## ----------------------------------------------------
+  ## Run infra for CRUD and Import tests
+  - ./runner.sh bootstrap
+  ## Prewarm
+  - ./runner.sh -t /k6/prewarm.js
+  ## Run tests
+  - ./runner.sh -t /k6/crud.js
+  - ./runner.sh -t /k6/import.js
+  ## Cleanup
+  - sleep 120
+  - docker compose down -v
+  ## ----------------------------------------------------
 
   ## Run infra for search tests
   - ./runner.sh bootstrap -f ci_search_suite.yaml -f docker-compose.override.yml
