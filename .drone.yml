@@ -110,6 +110,7 @@ steps:
   - gcloud auth activate-service-account --key-file=/tmp/key.json
   - gcloud auth configure-docker us-east1-docker.pkg.dev
   - rm /tmp/key.json
+  - docker pull us-east1-docker.pkg.dev/aidbox2-205511/aidbox/aidboxone:git-18c39033ba59c7bc3e498c417d64436b68581621
 
   ## Setup RUNID
   - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
