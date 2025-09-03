@@ -5,7 +5,6 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata:
   promdata:
   tgzdata:
 
@@ -31,7 +30,7 @@ services:
     networks:
       - global
     volumes:
-      - pgdata:/var/lib/postgresql/data:delegated
+      # - pgdata:/var/lib/postgresql/data:delegated
       - ./infra/postgres/init:/docker-entrypoint-initdb.d
       - ./infra/postgres/postgres.conf:/postgres.conf
   aidbox-indexer:
