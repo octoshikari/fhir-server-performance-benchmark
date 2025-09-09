@@ -93,10 +93,10 @@ steps:
     EOF
 
 - name: test
+  image: docker.io/healthsamurai/perftest-runner:1
   depends_on:
   - configure
   - dind-ready
-  image: google/cloud-sdk
   privileged: true
   environment:
     DRONE_CI_GCP_SA:
@@ -113,20 +113,6 @@ steps:
   commands:
   ## Setup RUNID
   - export RUNID=$(cat /tmp/workspace/run-id)
-  ## Install Docker and ZFS tools
-  - apt-get update
-  - apt-get install -y ca-certificates curl gnupg lsb-release software-properties-common
-  # Add ZFS repository for Debian
-  - |
-    echo "deb http://deb.debian.org/debian $(lsb_release -cs)-backports main contrib" >> /etc/apt/sources.list
-    apt-get update
-    apt-get install -y -t $(lsb_release -cs)-backports zfs-dkms zfsutils-linux || apt-get install -y zfs-fuse || echo "ZFS tools not available, skipping..."
-  - mkdir -p /etc/apt/keyrings
-  - curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-  - apt-get update
-  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-  - docker version
   
   ## Setup ZFS pool operations
   - |
