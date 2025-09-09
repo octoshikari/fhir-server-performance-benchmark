@@ -80,25 +80,25 @@ export default function ({ baseUrl, params, seeds }) {
   group('create', () => {
     group('Patient', () => {
       const x = http.post(http.url`${baseUrl}/Patient`, seeds.patient, params)
-      if (!check(x, { 'Patient created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'Patient created': ({ status }) => status === 201 })) return;
       resources.Patient = x.json()
     })
 
     group('Location', () => {
       const x = http.post(http.url`${baseUrl}/Location`, seeds.location, params)
-      if (!check(x, { 'Location created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'Location created': ({ status }) => status === 201 })) return;
       resources.Location = x.json()
     })
 
     group('Organization', () => {
       const x = http.post(http.url`${baseUrl}/Organization`, seeds.organization, params)
-      if (!check(x, { 'Organization created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'Organization created': ({ status }) => status === 201 })) return;
       resources.Organization = x.json()
     })
 
     group('Practitioner', () => {
       const x = http.post(http.url`${baseUrl}/Practitioner`, seeds.practitioner, params)
-      if (!check(x, { 'Practitioner created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'Practitioner created': ({ status }) => status === 201 })) return;
       resources.Practitioner = x.json()
     })
 
@@ -109,7 +109,7 @@ export default function ({ baseUrl, params, seeds }) {
       jsonPatch(payload, 'participant.0.individual.reference', getRtId(resources, 'Practitioner'))
       jsonPatch(payload, 'serviceProvider.reference', getRtId(resources, 'Organization'))
       const x = http.post(http.url`${baseUrl}/Encounter`, JSON.stringify(payload), params)
-      if (!check(x, { 'Encounter created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'Encounter created': ({ status }) => status === 201 })) return;
       resources.Encounter = x.json()
     })
 
@@ -118,7 +118,7 @@ export default function ({ baseUrl, params, seeds }) {
       jsonPatch(payload, 'encounter.reference', getRtId(resources, 'Encounter'))
       jsonPatch(payload, 'subject.reference', getRtId(resources, 'Patient'))
       const x = http.post(http.url`${baseUrl}/Observation`, JSON.stringify(payload), params)
-      if (!check(x, { 'Observation created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'Observation created': ({ status }) => status === 201 })) return;
       resources.Observation = x.json()
     })
 
@@ -128,7 +128,7 @@ export default function ({ baseUrl, params, seeds }) {
       jsonPatch(payload, 'requester.reference', getRtId(resources, 'Practitioner'))
       jsonPatch(payload, 'subject.reference', getRtId(resources, 'Patient'))
       const x = http.post(http.url`${baseUrl}/MedicationRequest`, JSON.stringify(payload), params)
-      if (!check(x, { 'MedicationRequest created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'MedicationRequest created': ({ status }) => status === 201 })) return;
       resources.MedicationRequest = x.json()
     })
 
@@ -139,7 +139,7 @@ export default function ({ baseUrl, params, seeds }) {
       jsonPatch(payload, 'prescription.reference', getRtId(resources, 'MedicationRequest'))
       jsonPatch(payload, 'item.0.encounter.0.reference', getRtId(resources, 'Encounter'))
       const x = http.post(http.url`${baseUrl}/Claim`, JSON.stringify(payload), params)
-      if (!check(x, { 'Claim created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'Claim created': ({ status }) => status === 201 })) return;
       resources.Claim = x.json()
     })
 
@@ -155,7 +155,7 @@ export default function ({ baseUrl, params, seeds }) {
       jsonPatch(payload, 'careTeam.0.provider.reference', getRtId(resources, 'Practitioner'))
       jsonPatch(payload, 'item.0.encounter.0.reference', getRtId(resources, 'Encounter'))
       const x = http.post(http.url`${baseUrl}/ExplanationOfBenefit`, JSON.stringify(payload), params)
-      if (!check(x, { 'ExplanationOfBenefit created': ({ status }) => status === 201 })) return
+      if (!check(x, { 'ExplanationOfBenefit created': ({ status }) => status === 201 })) return;
       resources.ExplanationOfBenefit = x.json()
     })
   })
