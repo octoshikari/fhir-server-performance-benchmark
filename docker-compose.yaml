@@ -31,7 +31,7 @@ services:
     networks:
       - global
     volumes:
-      - /tmp/default:/var/lib/postgresql/data:delegated
+      - pgdata:/var/lib/postgresql/data:delegated
       - ./infra/postgres/init:/docker-entrypoint-initdb.d
       - ./infra/postgres/postgres.conf:/postgres.conf
   aidbox-indexer:

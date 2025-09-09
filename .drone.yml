@@ -77,13 +77,12 @@ steps:
   - echo $RUNID > /tmp/workspace/run-id
   - |
     cat > docker-compose.override.yml << EOF
-    volumes:
-      pgdata:
-        driver: local
-        driver_opts:
-          type: none
-          o: bind
-          device: /tmp/default
+    services:
+      postgres:
+        volumes: !override
+          - /tmp/default:/var/lib/postgresql/data:delegated
+          - ./infra/postgres/init:/docker-entrypoint-initdb.d
+          - ./infra/postgres/postgres.conf:/postgres.conf
     services:
       aidbox:
         environment:
@@ -189,7 +188,7 @@ steps:
   
   ## Cleanup ZFS clone
   - |
-    if command -v zfs >/dev/null 2>&1 && zfs list | grep -q "tank/ci-"; then
+    if command -v zfs >/dev/null 2>&1 && zfs list | grep "tank/ci-"; then
       echo "Cleaning up ZFS clones..."
       for clone in $(zfs list -H -o name | grep "tank/ci-clone"); do
         echo "Destroying clone: $clone"
