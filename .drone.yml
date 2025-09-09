@@ -77,6 +77,8 @@ steps:
   - echo $RUNID > /tmp/workspace/run-id
   - |
     cat > docker-compose.override.yml << EOF
+    volumes:
+      pgdata: /tmp/default
     services:
       aidbox:
         environment:
@@ -142,8 +144,6 @@ steps:
       echo "Warning: ZFS pool 'tank' not found, continuing without it"
     fi
 
-  - exit 1
-
   ## GCP auth
   - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
   - gcloud auth activate-service-account --key-file=/tmp/key.json
@@ -164,7 +164,7 @@ steps:
   
   ## Cleanup ZFS clone
   - |
-    if command -v zfs >/dev/null 2>&1 && zfs list | grep -q "tank/ci-clone"; then
+    if command -v zfs >/dev/null 2>&1 && zfs list | grep -q "tank/ci-"; then
       echo "Cleaning up ZFS clones..."
       for clone in $(zfs list -H -o name | grep "tank/ci-clone"); do
         echo "Destroying clone: $clone"
