@@ -83,7 +83,6 @@ steps:
           - /tmp/default:/var/lib/postgresql/data:delegated
           - ./infra/postgres/init:/docker-entrypoint-initdb.d
           - ./infra/postgres/postgres.conf:/postgres.conf
-    services:
       aidbox:
         environment:
           BOX_LICENSE: $LICENSE
