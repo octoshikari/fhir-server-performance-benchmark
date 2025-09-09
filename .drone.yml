@@ -78,7 +78,12 @@ steps:
   - |
     cat > docker-compose.override.yml << EOF
     volumes:
-      pgdata: /tmp/default
+      pgdata:
+        driver: local
+        driver_opts:
+          type: none
+          o: bind
+          device: /tmp/default
     services:
       aidbox:
         environment:
