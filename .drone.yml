@@ -22,6 +22,9 @@ volumes:
 - name: search-dataset
   host:
     path: /var/data/storage/pgdata/perf-test-search
+- name: zfs
+  host:
+    path: /tank
 
 services:
 - name: dind
@@ -88,6 +91,7 @@ steps:
   - configure
   - dind-ready
   image: google/cloud-sdk
+  privileged: true
   environment:
     DRONE_CI_GCP_SA:
       from_secret: DRONE_CI_GCP_SA
@@ -98,16 +102,52 @@ steps:
     path: /tmp/workspace
   - name: search-dataset
     path: /var/lib/search-dataset
+  - name: zfs
+    path: /tank
   commands:
-  ## Install Docker
+  ## Install Docker and ZFS tools
   - apt-get update
-  - apt-get install -y ca-certificates curl gnupg lsb-release
+  - apt-get install -y ca-certificates curl gnupg lsb-release zfsutils-linux
   - mkdir -p /etc/apt/keyrings
   - curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
   - apt-get update
   - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   - docker version
+  
+  ## Setup ZFS pool operations
+  - |
+    echo "Setting up ZFS tank dataset..."
+    # Import pool if needed
+    zpool import -a 2>/dev/null || true
+    
+    # Check if tank pool exists
+    if zpool list | grep -q tank; then
+      echo "ZFS pool 'tank' found"
+      zfs list -r tank
+      
+      # Create snapshot with timestamp
+      SNAPSHOT_NAME="tank/golden@ci-$(date +%Y%m%d-%H%M%S)"
+      echo "Creating snapshot: $SNAPSHOT_NAME"
+      zfs snapshot -r $SNAPSHOT_NAME
+      
+      # Create clone and mount to /tmp/golden-clone
+      CLONE_NAME="tank/ci-clone-$$"
+      echo "Creating clone: $CLONE_NAME"
+      zfs clone $SNAPSHOT_NAME $CLONE_NAME
+      
+      # Set mountpoint for clone
+      zfs set mountpoint=/tmp/golden-clone $CLONE_NAME
+      
+      # Verify mount
+      echo "Clone mounted at:"
+      mount | grep golden-clone
+      ls -la /tmp/golden-clone/
+    else
+      echo "Warning: ZFS pool 'golden' not found, continuing without it"
+    fi
+
+  - exit 1
 
   ## GCP auth
   - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
@@ -129,6 +169,16 @@ steps:
   ## Cleanup
   - sleep 120
   - docker compose down -v
+  
+  ## Cleanup ZFS clone
+  - |
+    if zfs list | grep -q "golden/ci-clone"; then
+      echo "Cleaning up ZFS clones..."
+      for clone in $(zfs list -H -o name | grep "golden/ci-clone"); do
+        echo "Destroying clone: $clone"
+        zfs destroy -r $clone || true
+      done
+    fi
   ## ----------------------------------------------------
 
   # ## Run infra for search tests
