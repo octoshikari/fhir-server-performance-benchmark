@@ -109,6 +109,8 @@ steps:
         replacement: "$DRONE_BUILD_NUMBER"
       - target_label: repo
         replacement: "$DRONE_REPO_NAME"
+      - target_label: runid
+        replacement: "$RUNID"
       - source_labels: [__tmp_name]
         target_label: __name__
         replacement: \$1
