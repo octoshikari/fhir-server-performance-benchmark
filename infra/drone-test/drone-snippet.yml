@@ -1,0 +1,75 @@
+# Example of using the custom test image in .drone.yml
+# Replace 'your-registry.com/perf-test-runner:latest' with your actual image location
+
+- name: test
+  depends_on:
+  - configure
+  - dind-ready
+  image: your-registry.com/perf-test-runner:latest  # Use custom image with all tools pre-installed
+  privileged: true
+  environment:
+    DRONE_CI_GCP_SA:
+      from_secret: DRONE_CI_GCP_SA
+  volumes:
+  - name: dockersock
+    path: /var/run
+  - name: build
+    path: /tmp/workspace
+  - name: search-dataset
+    path: /var/lib/search-dataset
+  - name: zfs
+    path: /tank
+  commands:
+  ## Setup RUNID
+  - export RUNID=$(cat /tmp/workspace/run-id)
+  
+  ## No need to install Docker or ZFS - already in the image!
+  
+  ## Setup ZFS pool operations (if ZFS kernel module is available)
+  - |
+    echo "Setting up ZFS tank dataset..."
+    # Check if ZFS kernel module is loaded
+    if lsmod | grep -q zfs || modprobe zfs 2>/dev/null; then
+      # Import pool if needed
+      zpool import -a 2>/dev/null || true
+      
+      # Check if tank pool exists
+      if zpool list | grep -q tank; then
+        echo "ZFS pool 'tank' found"
+        zfs list -r tank
+        
+        # Create snapshot with timestamp
+        SNAPSHOT_NAME="tank/golden@ci-$RUNID"
+        echo "Creating snapshot: $SNAPSHOT_NAME"
+        zfs snapshot -r $SNAPSHOT_NAME
+        
+        # Create clone and mount to /tmp/golden-clone
+        CLONE_NAME="tank/ci-clone-$RUNID"
+        echo "Creating clone: $CLONE_NAME"
+        zfs clone $SNAPSHOT_NAME $CLONE_NAME
+        
+        # Set mountpoint for clone
+        zfs set mountpoint=/tmp/golden-clone $CLONE_NAME
+        
+        # Verify mount
+        echo "Clone mounted at:"
+        mount | grep ci-clone
+        ls -la /tmp/golden-clone/
+      else
+        echo "Warning: ZFS pool 'tank' not found, continuing without it"
+      fi
+    else
+      echo "ZFS kernel module not available, skipping ZFS operations"
+    fi
+
+  ## GCP auth
+  - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
+  - gcloud auth activate-service-account --key-file=/tmp/key.json
+  - gcloud auth configure-docker us-east1-docker.pkg.dev
+  - rm /tmp/key.json
+
+  ## Continue with tests...
+  - ./runner.sh bootstrap
+  - ./runner.sh -t /k6/prewarm.js
+  - ./runner.sh -t /k6/crud.js
+  - ./runner.sh -t /k6/import.js

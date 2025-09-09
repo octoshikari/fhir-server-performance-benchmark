@@ -1,0 +1,40 @@
+FROM google/cloud-sdk:latest
+
+# Install Docker, ZFS tools, and other required packages
+RUN apt-get update && \
+    apt-get install -y \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release \
+        software-properties-common \
+        && \
+    # Add Docker repository
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+    # Add backports for ZFS
+    echo "deb http://deb.debian.org/debian $(lsb_release -cs)-backports main contrib" >> /etc/apt/sources.list && \
+    # Install Docker and attempt ZFS installation
+    apt-get update && \
+    apt-get install -y \
+        docker-ce \
+        docker-ce-cli \
+        containerd.io \
+        docker-buildx-plugin \
+        docker-compose-plugin \
+        && \
+    # Try to install ZFS (may fail in Docker build)
+    (apt-get install -y -t $(lsb_release -cs)-backports zfsutils-linux || \
+     apt-get install -y zfs-fuse || \
+     echo "ZFS tools not available, will be installed at runtime if needed") && \
+    # Clean up
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Verify installations
+RUN docker --version && \
+    gcloud --version
+
+# Default command
+CMD ["/bin/bash"]
