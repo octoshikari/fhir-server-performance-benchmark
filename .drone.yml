@@ -68,7 +68,13 @@ steps:
       from_secret: LICENSE
     VMAUTH:
       from_secret: VMAUTH
+  volumes:
+  - name: build
+    path: /tmp/workspace
   commands:
+  ## Setup RUNID
+  - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  - echo $RUNID > /tmp/workspace/run-id
   - |
     cat > docker-compose.override.yml << EOF
     services:
@@ -105,6 +111,8 @@ steps:
   - name: zfs
     path: /tank
   commands:
+  ## Setup RUNID
+  - export RUNID=$(cat /tmp/workspace/run-id)
   ## Install Docker and ZFS tools
   - apt-get update
   - apt-get install -y ca-certificates curl gnupg lsb-release software-properties-common
@@ -132,12 +140,12 @@ steps:
       zfs list -r tank
       
       # Create snapshot with timestamp
-      SNAPSHOT_NAME="tank/golden@ci-$(date +%Y%m%d-%H%M%S)"
+      SNAPSHOT_NAME="tank/golden@ci-$RUNID"
       echo "Creating snapshot: $SNAPSHOT_NAME"
       zfs snapshot -r $SNAPSHOT_NAME
       
       # Create clone and mount to /tmp/golden-clone
-      CLONE_NAME="tank/ci-clone-$$"
+      CLONE_NAME="tank/ci-clone-$RUNID"
       echo "Creating clone: $CLONE_NAME"
       zfs clone $SNAPSHOT_NAME $CLONE_NAME
       
@@ -146,7 +154,7 @@ steps:
       
       # Verify mount
       echo "Clone mounted at:"
-      mount | grep golden-clone
+      mount | grep ci-clone
       ls -la /tmp/golden-clone/
     else
       echo "Warning: ZFS pool 'tank' not found, continuing without it"
@@ -160,9 +168,6 @@ steps:
   - gcloud auth configure-docker us-east1-docker.pkg.dev
   - rm /tmp/key.json
 
-  ## Setup RUNID
-  - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  - echo $RUNID > /tmp/workspace/run-id
 
   ## Run infra for CRUD and Import tests
   - ./runner.sh bootstrap
