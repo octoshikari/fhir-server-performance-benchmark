@@ -162,6 +162,7 @@ steps:
   - mount
   - ls -lah /tmp/default
   - ls -lah /tmp/golden
+  - grep -h
   - mount | grep ci-golden-clone
   - mount | grep ci-default-clone
 
@@ -171,7 +172,6 @@ steps:
   - gcloud auth configure-docker us-east1-docker.pkg.dev
   - rm /tmp/key.json
 
-  - ls -la /tmp/default
 
   ## Run infra for CRUD and Import tests
   - ./runner.sh bootstrap
