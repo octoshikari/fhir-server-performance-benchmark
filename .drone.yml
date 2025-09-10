@@ -160,6 +160,8 @@ steps:
   # Verify mount
   - echo "Clone mounted at:"
   - mount
+  - ls -lah /tmp/default
+  - ls -lah /tmp/golden
   - mount | grep ci-golden-clone
   - mount | grep ci-default-clone
 
