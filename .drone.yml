@@ -136,27 +136,29 @@ steps:
   -  zpool import -a 2>/dev/null || true
   - |
     if zpool list | grep -q tank; then
-      echo "Tank pool found"
+      echo "Pool  `tank` found"
     else
-      echo "Tank pool not found"
+      echo "Pool `tank` not found"
       exit 1
     fi
+  ### Create snapshot from default for search and import tests
   - |
-    ### Create snapshot from default for search and import tests
     SNAPSHOT_NAME="tank/default@ci-default-$RUNID"
     CLONE_NAME="tank/ci-default-clone-$RUNID"
     zfs snapshot -r $SNAPSHOT_NAME
     zfs clone $SNAPSHOT_NAME $CLONE_NAME
     zfs set mountpoint=/tmp/default $CLONE_NAME
 
-    ### Create snapshot from goldet for search tests 
+  ### Create snapshot from goldet for search tests 
+  - |
     SNAPSHOT_NAME="tank/golden@ci-$RUNID"
     CLONE_NAME="tank/ci-golden-clone-$RUNID"
     zfs snapshot -r $SNAPSHOT_NAME
     zfs clone $SNAPSHOT_NAME $CLONE_NAME
     zfs set mountpoint=/tmp/golden $CLONE_NAME
     
-    # Verify mount
+  # Verify mount
+  - |
     echo "Clone mounted at:"
     mount | grep ci-golden-clone
     mount | grep ci-default-clone
