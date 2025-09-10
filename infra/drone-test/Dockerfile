@@ -1,27 +1,26 @@
-FROM google/cloud-sdk:alpine
+FROM docker:dind
 
-# Install Docker, ZFS tools, and other required packages
-RUN apk update && \
-    apk add --no-cache \
-        docker \
-        docker-cli \
-        docker-compose \
-        ca-certificates \
-        curl \
-        gnupg \
+# Install ZFS tools and gcloud SDK
+RUN apk add --no-cache \
         bash \
-        coreutils \
-        grep \
-        zfs \
-        zfs-utils \
-        util-linux \
+        python3 \
+        py3-pip \
+        curl \
+        gcc \
+        python3-dev \
+        musl-dev \
+        linux-headers \
+        zfs zfs-lts \
         && \
+    # Install gcloud SDK
+    curl -o google-cloud-cli.tar.gz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz && \
+    tar -xf google-cloud-cli.tar.gz && \
+    ./google-cloud-sdk/install.sh --quiet --usage-reporting=false --path-update=false && \
+    rm google-cloud-cli.tar.gz && \
+    ln -s /google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud && \
+    ln -s /google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil && \
+    # Clean up
     rm -rf /var/cache/apk/*
 
-# Verify installations
-RUN docker --version && \
-    gcloud --version && \
-    zfs version || echo "ZFS not available in container"
-
-# Set entrypoint to bash for flexibility
-ENTRYPOINT ["/bin/bash"]
+# Default command
+CMD ["/bin/sh"]
