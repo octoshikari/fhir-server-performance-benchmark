@@ -133,32 +133,33 @@ steps:
   - export RUNID=$(cat /tmp/workspace/run-id)
   
   ## Setup ZFS pool operations
+  -  zpool import -a 2>/dev/null || true
   - |
-    zpool import -a 2>/dev/null || true
-    
-    # Check if tank pool exists
     if zpool list | grep -q tank; then
-      ### Create snapshot from default for search and import tests
-      SNAPSHOT_NAME="tank/default@ci-default-$RUNID"
-      CLONE_NAME="tank/ci-default-clone-$RUNID"
-      zfs snapshot -r $SNAPSHOT_NAME
-      zfs clone $SNAPSHOT_NAME $CLONE_NAME
-      zfs set mountpoint=/tmp/default $CLONE_NAME
-
-      ### Create snapshot from goldet for search tests 
-      SNAPSHOT_NAME="tank/golden@ci-$RUNID"
-      CLONE_NAME="tank/ci-golden-clone-$RUNID"
-      zfs snapshot -r $SNAPSHOT_NAME
-      zfs clone $SNAPSHOT_NAME $CLONE_NAME
-      zfs set mountpoint=/tmp/golden $CLONE_NAME
-      
-      # Verify mount
-      echo "Clone mounted at:"
-      mount | grep ci-golden-clone
-      mount | grep ci-default-clone
+      echo "Tank pool found"
     else
-      echo "Warning: ZFS pool 'tank' not found, continuing without it"
+      echo "Tank pool not found"
+      exit 1
     fi
+  - |
+    ### Create snapshot from default for search and import tests
+    SNAPSHOT_NAME="tank/default@ci-default-$RUNID"
+    CLONE_NAME="tank/ci-default-clone-$RUNID"
+    zfs snapshot -r $SNAPSHOT_NAME
+    zfs clone $SNAPSHOT_NAME $CLONE_NAME
+    zfs set mountpoint=/tmp/default $CLONE_NAME
+
+    ### Create snapshot from goldet for search tests 
+    SNAPSHOT_NAME="tank/golden@ci-$RUNID"
+    CLONE_NAME="tank/ci-golden-clone-$RUNID"
+    zfs snapshot -r $SNAPSHOT_NAME
+    zfs clone $SNAPSHOT_NAME $CLONE_NAME
+    zfs set mountpoint=/tmp/golden $CLONE_NAME
+    
+    # Verify mount
+    echo "Clone mounted at:"
+    mount | grep ci-golden-clone
+    mount | grep ci-default-clone
 
   ## GCP auth
   - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
