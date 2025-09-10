@@ -22,6 +22,9 @@ volumes:
 - name: search-dataset
   host:
     path: /var/data/storage/pgdata/perf-test-search
+- name: zfs
+  host:
+    path: /tank
 
 services:
 - name: dind
@@ -65,10 +68,21 @@ steps:
       from_secret: LICENSE
     VMAUTH:
       from_secret: VMAUTH
+  volumes:
+  - name: build
+    path: /tmp/workspace
   commands:
+  ## Setup RUNID
+  - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  - echo $RUNID > /tmp/workspace/run-id
   - |
     cat > docker-compose.override.yml << EOF
     services:
+      postgres:
+        volumes: !override
+          - /tmp/default:/var/lib/postgresql/data:delegated
+          - ./infra/postgres/init:/docker-entrypoint-initdb.d
+          - ./infra/postgres/postgres.conf:/postgres.conf
       aidbox:
         environment:
           BOX_LICENSE: $LICENSE
@@ -81,13 +95,27 @@ steps:
         username: vm
         password: $VMAUTH
       follow_redirects: true
+      write_relabel_configs:
+      - target_label: commit
+        replacement: "$DRONE_COMMIT"
+      - target_label: branch
+        replacement: "$DRONE_BRANCH"
+      - target_label: commit_sha
+        replacement: "$DRONE_COMMIT_SHA"
+      - target_label: build_number
+        replacement: "$DRONE_BUILD_NUMBER"
+      - target_label: repo
+        replacement: "$DRONE_REPO_NAME"
+      - target_label: runid
+        replacement: "$RUNID"
     EOF
 
 - name: test
+  image: docker.io/healthsamurai/perftest-runner:2
   depends_on:
   - configure
   - dind-ready
-  image: google/cloud-sdk
+  privileged: true
   environment:
     DRONE_CI_GCP_SA:
       from_secret: DRONE_CI_GCP_SA
@@ -98,26 +126,45 @@ steps:
     path: /tmp/workspace
   - name: search-dataset
     path: /var/lib/search-dataset
+  - name: zfs
+    path: /tank
   commands:
-  ## Install Docker
-  - apt-get update
-  - apt-get install -y ca-certificates curl gnupg lsb-release
-  - mkdir -p /etc/apt/keyrings
-  - curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-  - apt-get update
-  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-  - docker version
+  ## Setup RUNID
+  - export RUNID=$(cat /tmp/workspace/run-id)
+  
+  ## Setup ZFS pool operations
+  -  zpool import -a 2>/dev/null || true
+  - |
+    if zpool list | grep -q tank; then
+      echo "Pool  `tank` found"
+    else
+      echo "Pool `tank` not found"
+      exit 1
+    fi
+  ### Create snapshot from default for search and import tests
+  - |
+    SNAPSHOT_NAME="tank/default@ci-default-$RUNID"
+    CLONE_NAME="tank/ci-default-clone-$RUNID"
+    zfs snapshot -r $SNAPSHOT_NAME
+    zfs clone $SNAPSHOT_NAME $CLONE_NAME
+    zfs set mountpoint=/tmp/default $CLONE_NAME
+
+  ### Create snapshot from goldet for search tests 
+  - |
+    SNAPSHOT_NAME="tank/golden@ci-$RUNID"
+    CLONE_NAME="tank/ci-golden-clone-$RUNID"
+    zfs snapshot -r $SNAPSHOT_NAME
+    zfs clone $SNAPSHOT_NAME $CLONE_NAME
+    zfs set mountpoint=/tmp/golden $CLONE_NAME
+    
+  # Verify mount
+  - zfs list -o name,mounted,mountpoint | grep ci- || true
 
   ## GCP auth
   - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
   - gcloud auth activate-service-account --key-file=/tmp/key.json
   - gcloud auth configure-docker us-east1-docker.pkg.dev
   - rm /tmp/key.json
-
-  ## Setup RUNID
-  - export RUNID=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  - echo $RUNID > /tmp/workspace/run-id
 
   ## Run infra for CRUD and Import tests
   - ./runner.sh bootstrap
@@ -129,6 +176,16 @@ steps:
   ## Cleanup
   - sleep 120
   - docker compose down -v
+  
+  ## Cleanup ZFS clone
+  - |
+    if command -v zfs >/dev/null 2>&1 && zfs list | grep "tank/ci-"; then
+      echo "Cleaning up ZFS clones..."
+      for clone in $(zfs list -H -o name | grep "tank/ci-clone"); do
+        echo "Destroying clone: $clone"
+        zfs destroy -r $clone || true
+      done
+    fi
   ## ----------------------------------------------------
 
   # ## Run infra for search tests
