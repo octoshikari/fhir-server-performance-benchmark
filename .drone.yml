@@ -158,9 +158,10 @@ steps:
     zfs set mountpoint=/tmp/golden $CLONE_NAME
     
   # Verify mount
-  -  echo "Clone mounted at:"
-  -  mount | grep ci-golden-clone
-  -  mount | grep ci-default-clone
+  - echo "Clone mounted at:"
+  - mount
+  - mount | grep ci-golden-clone
+  - mount | grep ci-default-clone
 
   ## GCP auth
   - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
