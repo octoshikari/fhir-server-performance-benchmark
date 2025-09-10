@@ -19,17 +19,6 @@ export default
       }
     }
   ],
-  "meta": {
-    "profile": [
-      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
-    ],
-    "extension": [
-      {
-        "url": "ex:createdAt",
-        "valueInstant": "2024-10-17T12:36:18.845433Z"
-      }
-    ]
-  },
   "participant": [
     {
       "type": [

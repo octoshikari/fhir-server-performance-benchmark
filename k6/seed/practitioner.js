@@ -25,17 +25,6 @@ export default
       "system": "http://hl7.org/fhir/sid/us-npi"
     }
   ],
-  "meta": {
-    "profile": [
-      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
-    ],
-    "extension": [
-      {
-        "url": "ex:createdAt",
-        "valueInstant": "2024-10-17T12:36:14.656761Z"
-      }
-    ]
-  },
   "name": [
     {
       "given": [

@@ -22,17 +22,6 @@ export default
       "system": "https://github.com/synthetichealth/synthea"
     }
   },
-  "meta": {
-    "profile": [
-      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
-    ],
-    "extension": [
-      {
-        "url": "ex:createdAt",
-        "valueInstant": "2024-10-17T12:34:49.426706Z"
-      }
-    ]
-  },
   "name": "THE SHRINERS HOSPITAL FOR CHILDREN",
   "position": {
     "latitude": 42.12133575,

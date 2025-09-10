@@ -21,12 +21,6 @@ export default
             ]
         }
     ],
-    "meta": {
-        "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
-        ],
-        "extension": [{"url": "ex:createdAt", "valueInstant": "2022-12-01T10:51:39.203263Z"}]
-    },
     "name": [{"use": "official",
               "given": ["Pok428"],
               "family": "Metz686"}],
