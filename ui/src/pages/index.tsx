@@ -94,8 +94,9 @@ export default function Home() {
       
       const params = new URLSearchParams({
         prefix: prefix,
-        maxResults: '30',
+        maxResults: '300',
         fields: 'items(name,timeCreated)',
+        // orderBy: 'name desc',
       });
 
       const apiUrl = `${bucketUrl}?${params}`;
