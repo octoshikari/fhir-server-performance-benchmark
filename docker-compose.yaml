@@ -79,7 +79,10 @@ services:
 
   aidbox:
     container_name: perf-aidbox
-    image: healthsamurai/aidboxone:edge
+    #image: us-east1-docker.pkg.dev/aidbox2-205511/aidbox/aidboxone:git-58b7a9436ed51b1f0927db4bb72bbe7ba6040cc8
+    #image: us-east1-docker.pkg.dev/aidbox2-205511/aidbox/aidboxone:git-38ae8e09cf2286dd551e01f43ed86a8b598a237a
+    image: us-east1-docker.pkg.dev/aidbox2-205511/aidbox/aidboxone:git-bda967cee1b5b8ca74f047f2c772a7ce771dd108
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -104,10 +107,10 @@ services:
       BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
       BOX_FHIR_SCHEMA_VALIDATION: true
       BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
+      BOX_CACHE_REPLICATION_DISABLE: true
       BOX_FHIR_SEARCH_COMPARISONS: true
       BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
       BOX_METRICS_PORT: 8379
-      BOX_FHIR_LEGACY_FCE_PACKAGE: app.aidbox.main#0.0.1
       BOX_INIT_BUNDLE: file:///tmp/initbundle.json
       BOX_ROOT_CLIENT_SECRET: secret
       BOX_SEARCH_INCLUDE_CONFORMANT: true

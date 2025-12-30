@@ -10,7 +10,7 @@ export const options = {
   scenarios: {
     import: {
       executor: 'constant-vus',
-      vus: 8,
+      vus: 20,
       duration: '5m',
       gracefulStop: '30s',
     },

@@ -110,7 +110,7 @@ steps:
     EOF
 
 - name: test
-  image: docker.io/healthsamurai/perftest-runner:2
+  image: docker.io/healthsamurai/perftest-runner:5
   depends_on:
   - configure
   - dind-ready
@@ -162,7 +162,12 @@ steps:
   ## GCP auth
   - printf "%s" "$DRONE_CI_GCP_SA" > /tmp/key.json
   - gcloud auth activate-service-account --key-file=/tmp/key.json
-  - gcloud auth configure-docker us-east1-docker.pkg.dev
+  # Verify docker-credential-gcloud is available
+  - ls -la /google-cloud-sdk/bin/docker-credential-gcloud || echo "docker-credential-gcloud not found in gcloud SDK"
+  - which docker-credential-gcloud || echo "docker-credential-gcloud not in PATH"
+  # Add gcloud SDK bin to PATH if needed
+  - export PATH="/google-cloud-sdk/bin:$PATH"
+  - gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
   - rm /tmp/key.json
 
   ## Run infra for CRUD and Import tests
