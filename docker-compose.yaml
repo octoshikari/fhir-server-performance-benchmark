@@ -92,6 +92,7 @@ services:
       - ./infra/aidbox/initbundle.json:/tmp/initbundle.json
     environment:
       BOX_ADMIN_PASSWORD: secret
+      BOX_CACHE_REPLICATION_DISABLE: true
       BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
       BOX_DB_DATABASE: aidbox
       BOX_DB_HOST: postgres
@@ -107,7 +108,6 @@ services:
       BOX_FHIR_SEARCH_COMPARISONS: true
       BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
       BOX_METRICS_PORT: 8379
-      BOX_FHIR_LEGACY_FCE_PACKAGE: app.aidbox.main#0.0.1
       BOX_INIT_BUNDLE: file:///tmp/initbundle.json
       BOX_ROOT_CLIENT_SECRET: secret
       BOX_SEARCH_INCLUDE_CONFORMANT: true
