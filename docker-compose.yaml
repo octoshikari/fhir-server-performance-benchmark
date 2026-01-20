@@ -106,7 +106,6 @@ services:
       BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
       BOX_FHIR_SCHEMA_VALIDATION: true
       BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
-      BOX_CACHE_REPLICATION_DISABLE: true
       BOX_FHIR_SEARCH_COMPARISONS: true
       BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
       BOX_METRICS_PORT: 8379
