@@ -17,8 +17,11 @@ RUN apk add --no-cache \
     tar -xf google-cloud-cli.tar.gz && \
     ./google-cloud-sdk/install.sh --quiet --usage-reporting=false --path-update=false && \
     rm google-cloud-cli.tar.gz && \
+    # Install docker-credential-gcloud component
+    /google-cloud-sdk/bin/gcloud components install docker-credential-gcr --quiet && \
     ln -s /google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud && \
     ln -s /google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil && \
+    ln -s /google-cloud-sdk/bin/docker-credential-gcloud /usr/local/bin/docker-credential-gcloud && \
     # Clean up
     rm -rf /var/cache/apk/*
 
