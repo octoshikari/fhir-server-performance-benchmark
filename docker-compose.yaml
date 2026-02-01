@@ -9,6 +9,7 @@ services:
   postgres:
     container_name: perf-postgres
     image: postgres:18
+    pull_policy: always
     command: postgres -c config_file=/postgres.conf
     ports:
       - "13020:5432"
@@ -63,6 +64,7 @@ services:
   postgres-exporter:
     container_name: perf-postgres-exporter
     image: quay.io/prometheuscommunity/postgres-exporter
+    pull_policy: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,6 +82,7 @@ services:
   aidbox:
     container_name: perf-aidbox
     image: healthsamurai/aidboxone:edge
+    pull_policy: always
 
     depends_on:
       postgres:
@@ -131,6 +134,7 @@ services:
     container_name: perf-cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
     privileged: true
+    pull_policy: always
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -141,6 +145,7 @@ services:
   grafana:
     container_name: perf-grafana
     image: grafana/grafana-oss
+    pull_policy: always
     environment:
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_AUTH_ANONYMOUS_ENABLED: true
@@ -157,6 +162,7 @@ services:
   hapi:
     container_name: perf-hapi
     image: hapiproject/hapi:latest
+    pull_policy: always
     entrypoint:
       - java
       - -XX:MaxRAMPercentage=80
@@ -194,6 +200,7 @@ services:
 
   medplum:
     image: medplum/medplum-server
+    pull_policy: always
     command:
       - file:/srv/config.json
     deploy:
@@ -222,6 +229,7 @@ services:
   prometheus:
     container_name: perf-prometheus
     image: prom/prometheus
+    pull_policy: always
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --enable-feature=native-histograms
@@ -240,6 +248,7 @@ services:
   k6:
     container_name: perf-k6
     image: grafana/k6
+    pull_policy: always
     depends_on:
       aidbox:
         condition: service_healthy
@@ -256,6 +265,7 @@ services:
   redis:
     container_name: perf-redis
     image: redis:latest
+    pull_policy: always
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
