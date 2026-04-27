@@ -135,13 +135,14 @@ services:
     image: gcr.io/cadvisor/cadvisor:latest
     pull_policy: always
     privileged: true
+    command:
+      - --containerd=/var/run/docker/containerd/containerd.sock
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-      - /var/run/docker/containerd/containerd.sock:/run/containerd/containerd.sock:ro
 
   grafana:
     container_name: perf-grafana
