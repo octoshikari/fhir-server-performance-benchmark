@@ -7,9 +7,9 @@ volumes:
 
 services:
 
-## ------------------------------------------------
-## Postgres 
-## ------------------------------------------------
+  ## ------------------------------------------------
+  ## Postgres 
+  ## ------------------------------------------------
   postgres:
     container_name: perf-postgres
     image: postgres:18
@@ -35,13 +35,13 @@ services:
       - ./infra/postgres/init:/docker-entrypoint-initdb.d
       - ./infra/postgres/postgres.conf:/postgres.conf
 
-## ------------------------------------------------
-## FHIR Servers
-## ------------------------------------------------
+  ## ------------------------------------------------
+  ## FHIR Servers
+  ## ------------------------------------------------
 
-## ------------------------------------------------
-## Aidbox 
-## ------------------------------------------------
+  ## ------------------------------------------------
+  ## Aidbox 
+  ## ------------------------------------------------
   aidbox:
     container_name: perf-aidbox
     image: healthsamurai/aidboxone:edge
@@ -92,9 +92,9 @@ services:
     ports:
       - "13080:8080"
 
-## ------------------------------------------------
-## HAPI FHIR
-## ------------------------------------------------
+  ## ------------------------------------------------
+  ## HAPI FHIR
+  ## ------------------------------------------------
   hapi:
     container_name: perf-hapi
     image: hapiproject/hapi:latest
@@ -123,7 +123,7 @@ services:
   hapi-checker:
     container_name: perf-hapi-hc
     image: curlimages/curl
-    command: ["-c", "trap : TERM INT; sleep infinity & wait"]
+    command: [ "-c", "trap : TERM INT; sleep infinity & wait" ]
     depends_on:
       hapi:
         condition: service_started
@@ -137,7 +137,7 @@ services:
   octofhir:
     container_name: perf-octofhir
     image: ghcr.io/octofhir/octofhir-server:latest
-    pull_policy: never
+    pull_policy: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -163,16 +163,16 @@ services:
       OCTOFHIR__LOGGING__LEVEL: "info"
       RUST_LOG: "info"
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:8888/healthz || exit 1"]
+      test: [ "CMD-SHELL", "wget -q -O - http://localhost:8888/healthz || exit 1" ]
       interval: 10s
       start_period: 60s
       retries: 30
     ports:
       - "13100:8888"
 
-## ------------------------------------------------
-## Medplum 
-## ------------------------------------------------
+  ## ------------------------------------------------
+  ## Medplum 
+  ## ------------------------------------------------
   medplum:
     image: medplum/medplum-server:latest
     pull_policy: always
@@ -197,7 +197,8 @@ services:
           "CMD",
           "node",
           "-e",
-          'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
+          'fetch("http://localhost:8103/healthcheck").then(r =>
+            r.json()).then(console.log).catch(() => { process.exit(1); })',
         ]
       interval: 10s
       timeout: 1s
@@ -214,9 +215,9 @@ services:
       timeout: 5s
       retries: 5
 
-## ------------------------------------------------
-## K6 test runner and tgz service fo import tests
-## ------------------------------------------------
+  ## ------------------------------------------------
+  ## K6 test runner and tgz service fo import tests
+  ## ------------------------------------------------
   k6:
     container_name: perf-k6
     image: grafana/k6
@@ -241,14 +242,15 @@ services:
     build:
       context: infra/tgz
     command:
-      - "https://storage.googleapis.com/aidbox-public/synthea/performance/bulk_1k.tar.gz"
+      - "https://storage.googleapis.com/aidbox-public/synthea/performance/bulk_\
+        1k.tar.gz"
     volumes:
       - tgzdata:/data
     working_dir: /data
 
-## ------------------------------------------------
-## Monitoring stack
-## ------------------------------------------------
+  ## ------------------------------------------------
+  ## Monitoring stack
+  ## ------------------------------------------------
   prometheus:
     container_name: perf-prometheus
     image: prom/prometheus
