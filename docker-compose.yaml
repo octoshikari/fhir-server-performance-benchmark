@@ -138,7 +138,7 @@ services:
 ## Medplum 
 ## ------------------------------------------------
   medplum:
-    image: medplum/medplum-server
+    image: medplum/medplum-server:latest
     pull_policy: always
     command:
       - file:/srv/config.json
