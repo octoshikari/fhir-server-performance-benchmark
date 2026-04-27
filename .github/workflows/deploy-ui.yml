@@ -1,16 +1,9 @@
 name: Deploy UI to GitHub Pages
 
 on:
-  # Run on pushes to main branch
   push:
     branches:
       - main
-    paths:
-      - 'ui/**'
-      - '.github/workflows/deploy-ui.yml'
-  
-  # Allow manual trigger
-  workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:

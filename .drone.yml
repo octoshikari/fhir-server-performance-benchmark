@@ -110,7 +110,7 @@ steps:
     EOF
 
 - name: test
-  image: docker.io/healthsamurai/perftest-runner:5
+  image: docker.io/healthsamurai/perftest-runner:6
   depends_on:
   - configure
   - dind-ready

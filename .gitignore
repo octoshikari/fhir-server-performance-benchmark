@@ -12,6 +12,8 @@
 !.yarn/releases
 !.yarn/versions
 
+.claude/settings.local.json
+
 # testing
 /coverage
 /ui/coverage
