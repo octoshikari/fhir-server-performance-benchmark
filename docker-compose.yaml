@@ -151,6 +151,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    environment:
+      OTLP_METRICS_ENDPOINT: http://otel-collector:4318/v1/metrics
     volumes:
       - ./infra/medplum:/srv
     healthcheck:
@@ -258,6 +260,15 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+
+  otel-collector:
+    container_name: perf-otel-collector
+    image: otel/opentelemetry-collector-contrib:latest
+    pull_policy: always
+    command:
+      - --config=/etc/otel/config.yaml
+    volumes:
+      - ./infra/otel/config.yaml:/etc/otel/config.yaml:ro
 
   postgres-exporter:
     container_name: perf-postgres-exporter

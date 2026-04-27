@@ -171,18 +171,17 @@ export default function Home() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
+              <Link
+                href="/infrastructure"
+                className="text-sm text-blue-500 hover:text-blue-600 hover:underline"
+              >
+                Infrastructure
+              </Link>
               <BranchSelector
                 selectedBranch={selectedBranch}
                 onBranchChange={handleBranchChange}
                 availableBranches={availableBranches}
               />
-              <button
-                onClick={fetchReportsFromGCS}
-                disabled={loading}
-                className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Loading...' : 'Refresh'}
-              </button>
             </div>
           </div>
         </div>
